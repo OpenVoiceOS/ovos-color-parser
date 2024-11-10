@@ -128,25 +128,25 @@ print(color_distance(color_a, color_b))
 match a color object to a list of colors
 
 ```python
-from ovos_color_parser import sRGBColor, sRGBColorPalette, closest_color
+from ovos_color_parser import sRGBAColor, sRGBAColorPalette, closest_color
 
 # https://en.wikipedia.org/wiki/Blue-green
-BlueGreenPalette = sRGBColorPalette(colors=[
-    sRGBColor(r=0, g=128, b=128, name="Blue-green"),
-    sRGBColor(r=0, g=255, b=255, name="Cyan (Aqua)", description="Brilliant bluish green"),
-    sRGBColor(r=64, g=224, b=208, name="Turquoise", description="Brilliant bluish green"),
-    sRGBColor(r=17, g=100, b=180, name="Green-blue", description="Strong blue"),
-    sRGBColor(r=57, g=55, b=223, name="Bondi blue"),
-    sRGBColor(r=0, g=165, b=156, name="Blue green (Munsell)", description="Brilliant bluish green"),
-    sRGBColor(r=0, g=123, b=167, name="Cerulean", description="Strong greenish blue"),
-    sRGBColor(r=0, g=63, b=255, name="Cerulean (RGB)", description="Vivid blue"),
-    sRGBColor(r=0, g=128, b=128, name="Teal", description="Moderate bluish green"),
+BlueGreenPalette = sRGBAColorPalette(colors=[
+  sRGBAColor(r=0, g=128, b=128, name="Blue-green"),
+  sRGBAColor(r=0, g=255, b=255, name="Cyan (Aqua)", description="Brilliant bluish green"),
+  sRGBAColor(r=64, g=224, b=208, name="Turquoise", description="Brilliant bluish green"),
+  sRGBAColor(r=17, g=100, b=180, name="Green-blue", description="Strong blue"),
+  sRGBAColor(r=57, g=55, b=223, name="Bondi blue"),
+  sRGBAColor(r=0, g=165, b=156, name="Blue green (Munsell)", description="Brilliant bluish green"),
+  sRGBAColor(r=0, g=123, b=167, name="Cerulean", description="Strong greenish blue"),
+  sRGBAColor(r=0, g=63, b=255, name="Cerulean (RGB)", description="Vivid blue"),
+  sRGBAColor(r=0, g=128, b=128, name="Teal", description="Moderate bluish green"),
 ])
 
-print(closest_color(sRGBColor(r=0, g=0, b=255, name="Blue"),
+print(closest_color(sRGBAColor(r=0, g=0, b=255, name="Blue"),
                     BlueGreenPalette.colors))
 # sRGBColor(r=0, g=63, b=255, name='Cerulean (RGB)', description='Vivid blue')
-print(closest_color(sRGBColor(r=0, g=255, b=0, name="Green"),
+print(closest_color(sRGBAColor(r=0, g=255, b=0, name="Green"),
                     BlueGreenPalette.colors))
 # sRGBColor(r=64, g=224, b=208, name='Turquoise', description='Brilliant bluish green')
 ```

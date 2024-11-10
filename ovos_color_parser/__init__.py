@@ -45,11 +45,12 @@ def cmyk_to_rgb(c, m, y, k, cmyk_scale=100, rgb_scale=255) -> Tuple[int, int, in
 
 
 @dataclass
-class sRGBColor:
+class sRGBAColor:
     # Color defined in sRGB color space
     r: int
     g: int
     b: int
+    a: int = 255
     name: Optional[str] = None
     description: Optional[str] = None
 
@@ -85,13 +86,13 @@ class sRGBColor:
         return f"#{self.r:02x}{self.g:02x}{self.b:02x}".upper()
 
     @staticmethod
-    def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBColor':
+    def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBAColor':
         if hex_str.startswith('#'):
             hex_str = hex_str[1:]
         r = int(hex_str[0:2], 16)
         g = int(hex_str[2:4], 16)
         b = int(hex_str[4:6], 16)
-        return sRGBColor(r, g, b, name, description)
+        return sRGBAColor(r, g, b, name=name, description=description)
 
     def __post_init__(self):
         # Enforce hue values between 0 and 360
@@ -123,11 +124,11 @@ class HSVColor:
         return HueRange(self.h, self.h, self.name, self.hex_str).as_spectral_color
 
     @property
-    def as_rgb(self) -> 'sRGBColor':
+    def as_rgb(self) -> 'sRGBAColor':
         r, g, b = hsv_to_rgb(self.h / 360, self.s, self.v)
-        return sRGBColor(int(r * 255), int(g * 255), int(b * 255),
-                         name=self.name,
-                         description=self.description)
+        return sRGBAColor(int(r * 255), int(g * 255), int(b * 255),
+                          name=self.name,
+                          description=self.description)
 
     @property
     def as_hls(self) -> 'HLSColor':
@@ -139,7 +140,7 @@ class HSVColor:
 
     @staticmethod
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'HSVColor':
-        return sRGBColor.from_hex_str(hex_str, name, description).as_hsv
+        return sRGBAColor.from_hex_str(hex_str, name, description).as_hsv
 
 
 @dataclass
@@ -162,11 +163,11 @@ class HLSColor:
         return HueRange(self.h, self.h, self.name, self.hex_str).as_spectral_color
 
     @property
-    def as_rgb(self) -> 'sRGBColor':
+    def as_rgb(self) -> 'sRGBAColor':
         r, g, b = hls_to_rgb(self.h / 360, self.l, self.s)
-        return sRGBColor(int(r * 255), int(g * 255), int(b * 255),
-                         name=self.name,
-                         description=self.description)
+        return sRGBAColor(int(r * 255), int(g * 255), int(b * 255),
+                          name=self.name,
+                          description=self.description)
 
     @property
     def as_hsv(self) -> 'HSVColor':
@@ -178,7 +179,7 @@ class HLSColor:
 
     @staticmethod
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'HLSColor':
-        return sRGBColor.from_hex_str(hex_str, name, description).as_hls
+        return sRGBAColor.from_hex_str(hex_str, name, description).as_hls
 
 
 # Just for fun, so we can map wavelens to colors
@@ -218,9 +219,9 @@ class SpectralColor:
         raise ValueError("Wavelength is out of the defined spectral color palette.")
 
     @property
-    def as_rgb(self) -> 'sRGBColor':
+    def as_rgb(self) -> 'sRGBAColor':
         if self.hex_approximation:
-            return sRGBColor.from_hex_str(self.hex_approximation)
+            return sRGBAColor.from_hex_str(self.hex_approximation)
         if self.hue_approximation:
             return HSVColor(self.hue_approximation.hue).as_rgb
         return HSVColor(self._wavelength_to_hue(self.wavelen, ISCCNBSSpectralColorTerms)).as_rgb
@@ -236,7 +237,7 @@ class SpectralColor:
     @staticmethod
     def from_rgb(r: int, g: int, b: int, name: Optional[str] = None,
                  description: Optional[str] = None) -> 'SpectralColor':
-        return sRGBColor(r, g, b, name, description).as_hsv.as_spectral_color
+        return sRGBAColor(r, g, b, name=name, description=description).as_hsv.as_spectral_color
 
     @staticmethod
     def from_hsv(h: int, s: float, v: float, name: Optional[str] = None,
@@ -251,7 +252,7 @@ class SpectralColor:
     @staticmethod
     def from_hex_str(hex_str: str, name: Optional[str] = None,
                      description: Optional[str] = None) -> 'SpectralColor':
-        return sRGBColor.from_hex_str(hex_str, name, description).as_spectral_color
+        return sRGBAColor.from_hex_str(hex_str, name, description).as_spectral_color
 
 
 @dataclass
@@ -285,8 +286,8 @@ class HueRange:
         return specolor
 
     @property
-    def as_rgb(self) -> 'sRGBColorPalette':
-        return sRGBColorPalette(colors=[])  # TODO
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return sRGBAColorPalette(colors=[])  # TODO
 
     @property
     def as_hls(self) -> 'HLSColorPalette':
@@ -326,8 +327,8 @@ class HueRange:
 
 
 @dataclass
-class sRGBColorPalette:
-    colors: List[sRGBColor]
+class sRGBAColorPalette:
+    colors: List[sRGBAColor]
 
     @property
     def as_hsv(self) -> 'HSVColorPalette':
@@ -343,8 +344,8 @@ class HSVColorPalette:
     colors: List[HSVColor]
 
     @property
-    def as_rgb(self) -> 'sRGBColorPalette':
-        return sRGBColorPalette(colors=[c.as_rgb for c in self.colors])
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return sRGBAColorPalette(colors=[c.as_rgb for c in self.colors])
 
     @property
     def as_hls(self) -> 'HLSColorPalette':
@@ -356,8 +357,8 @@ class HLSColorPalette:
     colors: List[HLSColor]
 
     @property
-    def as_rgb(self) -> 'sRGBColorPalette':
-        return sRGBColorPalette(colors=[c.as_rgb for c in self.colors])
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return sRGBAColorPalette(colors=[c.as_rgb for c in self.colors])
 
     @property
     def as_hsv(self) -> 'HSVColorPalette':
@@ -369,8 +370,8 @@ class SpectralColorPalette:
     colors: List[SpectralColor]
 
     @property
-    def as_rgb(self) -> 'sRGBColorPalette':
-        return sRGBColorPalette(colors=[c.as_rgb for c in self.colors])
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return sRGBAColorPalette(colors=[c.as_rgb for c in self.colors])
 
     @property
     def as_hsv(self) -> 'HSVColorPalette':
@@ -556,11 +557,11 @@ class ColorTerm:
     hex_approximation: Optional[str] = None
 
     @property
-    def as_rgb(self) -> sRGBColor:
+    def as_rgb(self) -> sRGBAColor:
         if self.hex_approximation:
-            return sRGBColor.from_hex_str(self.hex_approximation)
+            return sRGBAColor.from_hex_str(self.hex_approximation)
         if self.hue.hex_approximation:
-            return sRGBColor.from_hex_str(self.hue.hex_approximation)
+            return sRGBAColor.from_hex_str(self.hue.hex_approximation)
         return self.hue.as_spectral_color.as_rgb
 
 
@@ -584,14 +585,14 @@ EnglishColorTerms = LanguageColorVocabulary(terms=[
 ])
 
 # for Typing
-Color = Union[sRGBColor, HSVColor, HLSColor, SpectralColor, ColorTerm]
-ColorPalette = Union[sRGBColorPalette, HSVColorPalette, HLSColorPalette, SpectralColorPalette]
+Color = Union[sRGBAColor, HSVColor, HLSColor, SpectralColor, ColorTerm]
+ColorPalette = Union[sRGBAColorPalette, HSVColorPalette, HLSColorPalette, SpectralColorPalette]
 
 
 def color_distance(color_a: Color, color_b: Color) -> float:
-    if not isinstance(color_a, sRGBColor):
+    if not isinstance(color_a, sRGBAColor):
         color_a = color_a.as_rgb
-    if not isinstance(color_b, sRGBColor):
+    if not isinstance(color_b, sRGBAColor):
         color_b = color_b.as_rgb
     return float(deltaE([color_a.r, color_a.g, color_a.b],
                         [color_b.r, color_b.g, color_b.b],
@@ -599,7 +600,7 @@ def color_distance(color_a: Color, color_b: Color) -> float:
 
 
 def closest_color(color: Color, color_opts: List[Color]) -> Color:
-    color_opts = [c if isinstance(c, sRGBColor) else c.as_rgb for c in color_opts]
+    color_opts = [c if isinstance(c, sRGBAColor) else c.as_rgb for c in color_opts]
     scores = {c: color_distance(color, c) for c in color_opts}
     return min(scores, key=lambda k: scores[k])
 
@@ -622,7 +623,7 @@ def _load_color_json(lang: str):
 
 
 def lookup_name(color: Color, lang: str = "en") -> str:
-    if not isinstance(color, sRGBColor):
+    if not isinstance(color, sRGBAColor):
         color = color.as_rgb
     data = _load_color_json(lang)
     if color.hex_str in data:
@@ -648,29 +649,54 @@ def _get_object_colors(lang: str) -> Dict[str, str]:
         return json.load(f)
 
 
-def _adjust_color_attributes(color: HLSColor, description: str, adjectives: dict):
+def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -> sRGBAColor:
+    if not isinstance(color, HLSColor):
+        color = color.as_hls
+
     description = description.lower().strip()
-    # Saturation adjustments
+
+    # Saturation adjustments with additive/subtractive control
     if any(word.lower() in description for word in adjectives["very_high_saturation"]):
-        color.s = min(1.0, color.s * 1.5)  # Increase saturation
+        color.s = min(1.0, color.s + 0.2)  # Increase saturation
     elif any(word.lower() in description for word in adjectives["high_saturation"]):
-        color.s = min(1.0, color.s * 1.2)
+        color.s = min(1.0, color.s + 0.1)
     elif any(word.lower() in description for word in adjectives["low_saturation"]):
-        color.s = max(0.0, color.s * 0.7)
+        color.s = max(0.0, color.s - 0.1)
     elif any(word.lower() in description for word in adjectives["very_low_saturation"]):
-        color.s = max(0.0, color.s * 0.5)
+        color.s = max(0.0, color.s - 0.2)
 
-    # Brightness adjustments
+    # Brightness adjustments with gamma-like control
     if any(word.lower() in description for word in adjectives["very_high_brightness"]):
-        color.l = min(1.0, color.l * 1.5)
+        color.l = min(1.0, color.l + 0.2)
     elif any(word.lower() in description for word in adjectives["high_brightness"]):
-        color.l = min(1.0, color.l * 1.2)
+        color.l = min(1.0, color.l + 0.1)
     elif any(word.lower() in description for word in adjectives["low_brightness"]):
-        color.l = max(0.0, color.l * 0.7)
+        color.l = max(0.0, color.l - 0.1)
     elif any(word.lower() in description for word in adjectives["very_low_brightness"]):
-        color.l = max(0.0, color.l * 0.5)
+        color.l = max(0.0, color.l - 0.2)
 
-    # Similar adjustments can be made for temperature and opacity if those properties exist in HLSColor
+    # Opacity adjustments
+    if any(word.lower() in description for word in adjectives["very_high_opacity"]):
+        color.a = min(1.0, color.a * 1.5)
+    elif any(word.lower() in description for word in adjectives["high_opacity"]):
+        color.a = min(1.0, color.a * 1.2)
+    elif any(word.lower() in description for word in adjectives["low_opacity"]):
+        color.a = max(0.0, color.a * 0.7)
+    elif any(word.lower() in description for word in adjectives["very_low_opacity"]):
+        color.a = max(0.0, color.a * 0.5)
+
+    # Temperature adjustments using RGB tinting
+    color = color.as_rgb
+    if any(word.lower() in description for word in adjectives["very_high_temperature"]):
+        color.r = min(1.0, color.r + 0.1)
+        color.g = max(0.0, color.g - 0.05)  # Add warmth by reducing blue tones
+    elif any(word.lower() in description for word in adjectives["high_temperature"]):
+        color.r = min(1.0, color.r + 0.05)
+    elif any(word.lower() in description for word in adjectives["low_temperature"]):
+        color.b = min(1.0, color.b + 0.05)  # Add coolness by increasing blue tones
+    elif any(word.lower() in description for word in adjectives["very_low_temperature"]):
+        color.b = min(1.0, color.b + 0.1)
+
     return color
 
 
@@ -691,8 +717,8 @@ class FuzzyColor:
         return self.approximation.as_hls
 
     @property
-    def as_rgb(self) -> sRGBColor:
-        if isinstance(self.approximation, sRGBColor):
+    def as_rgb(self) -> sRGBAColor:
+        if isinstance(self.approximation, sRGBAColor):
             return self.approximation
         return self.approximation.as_rgb
 
@@ -705,7 +731,7 @@ class FuzzyColor:
 
 def color_from_description(description: str, lang: str = "en",
                            strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
-                           cast_to_palette: bool = False) -> Optional[sRGBColor]:
+                           cast_to_palette: bool = False) -> Optional[sRGBAColor]:
     def norm(k):
         return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
 
@@ -747,14 +773,12 @@ def color_from_description(description: str, lang: str = "en",
     c = _adjust_color_attributes(c, description,
                                  _get_color_adjectives(lang))
     c.name = description.title()
-    c.description = description
-    if not isinstance(c, sRGBColor):
-        c = c.as_rgb
 
     # do not invent colors
     if cast_to_palette:
         c = closest_color(c, candidates)
-        c.description = description
+
+    c.description = description
     return c
 
 
