@@ -317,7 +317,7 @@ joke.
 </details>
 
 
-## Approximating Colors from text
+## Language support
 
 When describing color in natural language to approximate it in RGB, there are several keywords that can convey
 its properties effectively:
@@ -393,12 +393,16 @@ its properties effectively:
 This approach, while interpretative, offers a structured way to translate natural language color descriptions into RGB
 approximations.
 
-### Language support
+#### Color Keywords 
 
 To categorize adjectives and keywords that describe color in ways that translate into RGB or color space adjustments the
 parser uses a `.json` file per language
 
-Below are some examples of keywords that define qualities of a color
+Color name lists in each language are also used to determine the **hue**. 
+
+> English has a word list of almost ~6000 color name mappings
+
+Below are some examples of non-color-name keywords that define other qualities of a color
 
 <details>
   <summary>Saturation (Intensity)</summary>
@@ -458,7 +462,6 @@ Below are some examples of keywords that define qualities of a color
 
 </details>
 
-Color name lists in each language are also used to determine the **hue**
 
 ## Related Projects
 
