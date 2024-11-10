@@ -744,7 +744,7 @@ def _load_color_automaton(lang: str) -> ahocorasick.Automaton:
         return _color_automatons[lang]
     automaton = ahocorasick.Automaton()
     for hex_str, name in _load_color_json(lang).items():
-        automaton.add_word(name.lower(), hex_str)
+        automaton.add_word(_norm(name), hex_str)
     automaton.make_automaton()
     _color_automatons[lang] = automaton
     return automaton
@@ -756,7 +756,7 @@ def _load_object_automaton(lang: str) -> ahocorasick.Automaton:
         return _object_automatons[lang]
     automaton = ahocorasick.Automaton()
     for hex_str, name in _get_object_colors(lang).items():
-        automaton.add_word(name.lower(), hex_str)
+        automaton.add_word(_norm(name), hex_str)
     automaton.make_automaton()
     _object_automatons[lang] = automaton
     return automaton
