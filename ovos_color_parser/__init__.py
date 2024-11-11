@@ -738,6 +738,10 @@ _object_automatons: Dict[str, ahocorasick.Automaton] = {}
 
 
 def _norm(k):
+    """
+    Normalize a string by converting it to lowercase, replacing hyphens and underscores with spaces,
+    and stripping punctuation and whitespace characters.
+    """
     return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
 
 
@@ -767,6 +771,16 @@ def _load_object_automaton(lang: str) -> ahocorasick.Automaton:
     return automaton
 
 
+def _match_automaton(automaton, description, data_dict, strategy):
+    candidates = []
+    weights = []
+    for _, hex_str in automaton.iter(description):
+        name = data_dict[hex_str]
+        weights.append(fuzzy_match(name, description, strategy=strategy))
+        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
+    return candidates, weights
+
+
 #################
 
 
@@ -779,24 +793,18 @@ def color_from_description(description: str, lang: str = "en",
     # step 1 - match color db
     color_dict = _load_color_json(lang)
     automaton = _load_color_automaton(lang)
-    for idx, hex_str in automaton.iter(description):
-        name = color_dict[hex_str]
-        weights.append(fuzzy_match(name,
-                                   description,
-                                   strategy=strategy))
-        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
-        # print(f"DEBUG: matched color name -> {name}:{hex_str}")
+    c, w = _match_automaton(automaton, description, color_dict, strategy)
+    # print(f"DEBUG: matched color names -> {c}")
+    candidates += c
+    weights += w
 
     # Step 2 - match object names
     obj_dict = _get_object_colors(lang)
     automaton = _load_object_automaton(lang)
-    for idx, hex_str in automaton.iter(description):
-        name = obj_dict[hex_str]
-        weights.append(fuzzy_match(name,
-                                   description,
-                                   strategy=strategy))
-        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
-        # print(f"DEBUG: matched object name -> {name}:{hex_str}")
+    c, w = _match_automaton(automaton, description, obj_dict, strategy)
+    # print(f"DEBUG: matched object name -> {c}")
+    candidates += c
+    weights += w
 
     # Step 3 - select base color
     # TODO - add concept of "FuzzyColor" object and allow returning a range of hues instead
