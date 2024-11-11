@@ -890,7 +890,7 @@ def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:
         else:
             blue = tmp_blue
 
-    return sRGBAColor(red, green, blue, description=f"{colour_temperature}K")
+    return sRGBAColor(int(red), int(green), int(blue), description=f"{colour_temperature}K")
 
 
 def get_contrasting_black_or_white(hex_code: str) -> sRGBAColor:
