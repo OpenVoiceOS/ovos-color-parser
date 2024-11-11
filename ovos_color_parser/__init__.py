@@ -784,7 +784,7 @@ def color_from_description(description: str, lang: str = "en",
 
     # Step 2 - match object names
     obj_dict = _get_object_colors(lang)
-    automaton = _load_color_automaton(lang)
+    automaton = _load_object_automaton(lang)
     for idx, hex_str in automaton.iter(description):
         name = obj_dict[hex_str]
         weights.append(fuzzy_match(name,
@@ -891,3 +891,35 @@ def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:
             blue = tmp_blue
 
     return sRGBAColor(red, green, blue, description=f"{colour_temperature}K")
+
+
+def get_contrasting_black_or_white(hex_code: str) -> sRGBAColor:
+    """Get a contrasting black or white color for text display.
+
+    This gets calculated based off the input color using the YIQ system.
+    https://en.wikipedia.org/wiki/YIQ
+
+    Args:
+        hex_code of base color
+
+    Returns:
+        black or white as a hex_code
+    """
+    color = sRGBAColor.from_hex_str(hex_code)
+    yiq = ((color.r * 299) + (color.g * 587) + (color.b * 114)) / 1000
+    ccolor = sRGBAColor.from_hex_str("#000000", name="white") \
+        if yiq > 125 else sRGBAColor.from_hex_str("#ffffff", name="black")
+    return ccolor
+
+
+def is_hex_code_valid(hex_code: str) -> bool:
+    """Validate whether the input string is a valid hex color code."""
+    # TODO expand to validate 3 char codes.
+    hex_code = hex_code.lstrip("#")
+    try:
+        assert len(hex_code) == 6
+        int(hex_code, 16)
+    except (AssertionError, ValueError):
+        return False
+    else:
+        return True
