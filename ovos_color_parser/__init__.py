@@ -842,7 +842,7 @@ def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:
     """
     # range check
     if colour_temperature < 1000 or colour_temperature > 40000:
-        raise ValueError("color temperature out of range, only values between 1000 and 4000 supported")
+        raise ValueError("color temperature out of range, only values between 1000 and 40000 supported")
 
     tmp_internal = colour_temperature / 100.0
 
