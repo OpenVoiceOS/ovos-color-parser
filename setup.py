@@ -56,7 +56,6 @@ setup(
     version=get_version(),
     packages=['ovos_color_parser'],
     url='https://github.com/OpenVoiceOS/ovos-color-parser',
-    obsoletes=['ovos_color_parser'],
     license='Apache2.0',
     package_data={'': extra_files},
     include_package_data=True,
