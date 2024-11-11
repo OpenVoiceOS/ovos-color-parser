@@ -338,7 +338,12 @@ Warmer colors (2700K–3000K) create a welcoming, relaxed atmosphere ideal for r
 ## Language support
 
 When describing color in natural language to approximate it in RGB, there are several keywords that can convey
-its properties effectively:
+its properties effectively
+
+```python
+# Parse complex color descriptions
+color = color_from_description("very bright, slightly warm muted blue")
+```
 
 <details>
   <summary>Hue</summary>
@@ -350,7 +355,6 @@ its properties effectively:
       green.
     - Hues like "yellow" indicate both red and green channels are high with blue low, while "purple" combines red and
       blue with little green.
-- **Strategy**: Identify the dominant hue, then adjust the RGB channels accordingly to reflect it.
 
 </details>
 
@@ -364,8 +368,6 @@ its properties effectively:
       the red channel much higher than green and blue for a vibrant red.
     - Low saturation (dull): Reduce the contrast between channels, creating a blend closer to grayscale. For instance,
       balancing red, green, and blue channels to similar values lowers saturation.
-- **Strategy**: A term like "muted green" would mean lowering the green channel's intensity relative to a bright green,
-  but still keeping it dominant over red and blue.
 
 </details>
 
@@ -377,8 +379,6 @@ its properties effectively:
 - **Translation to RGB**:
     - High brightness (bright): Increase the values across all channels.
     - Low brightness (dark): Decrease values across channels while maintaining the hue's relative balance.
-- **Strategy**: A "pale pink" could be achieved by adding white (higher red, green, and blue values) to lighten a
-  typical pink. For a "dark blue," all channels are reduced, but the blue remains higher than the others.
 
 </details>
 
@@ -391,8 +391,6 @@ its properties effectively:
 - **Translation to RGB**:
     - Warm colors: Increase red or red and green channels.
     - Cool colors: Increase blue or decrease red.
-- **Strategy**: Adjust the balance between red, green, and blue to match the warmth or coolness described. For example,
-  a "warm gray" would have a slight increase in red, while a "cool gray" would have a hint of blue.
 
 </details>
 
@@ -403,8 +401,6 @@ its properties effectively:
   “translucent,” “opaque,” or “sheer” describe it.
 - **Translation to RGB**:
     - Opacity affects the alpha channel (RGBA) rather than RGB values.
-- **Strategy**: If opacity is important, adjust the alpha channel rather than RGB. For instance, "translucent blue" with
-  an alpha below 1.0 would show a slightly transparent overlay.
 
 </details>
 
@@ -413,11 +409,6 @@ approximations.
 
 #### Color Keywords 
 
-
-```python
-# Parse complex color descriptions
-color = color_from_description("very bright, slightly warm muted blue")
-```
 
 To categorize adjectives and keywords that describe color in ways that translate into RGB or color space adjustments the
 parser uses a `.json` file per language
