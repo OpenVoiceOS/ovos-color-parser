@@ -1,14 +1,20 @@
 # Changelog
 
-## [0.0.1a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.1a2) (2024-11-11)
+## [0.0.2a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.2a2) (2024-11-11)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/f16a1af67590fc5467685f49d4de80cd6812fc41...0.0.1a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.2a1...0.0.2a2)
 
 **Merged pull requests:**
 
-- feat: semver [\#3](https://github.com/OpenVoiceOS/ovos-color-parser/pull/3) ([JarbasAl](https://github.com/JarbasAl))
-- feat: efficient matching [\#2](https://github.com/OpenVoiceOS/ovos-color-parser/pull/2) ([JarbasAl](https://github.com/JarbasAl))
-- pt-pt/translate [\#1](https://github.com/OpenVoiceOS/ovos-color-parser/pull/1) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- pt-pt/translate [\#7](https://github.com/OpenVoiceOS/ovos-color-parser/pull/7) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+
+## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.2a1) (2024-11-11)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.1...0.0.2a1)
+
+**Merged pull requests:**
+
+- pt-pt/translate [\#5](https://github.com/OpenVoiceOS/ovos-color-parser/pull/5) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
 
