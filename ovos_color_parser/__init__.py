@@ -1,6 +1,7 @@
 import json
 import math
 import os.path
+import threading
 from colorsys import rgb_to_hsv, hsv_to_rgb, hls_to_rgb, rgb_to_hls
 from dataclasses import dataclass
 from typing import List, Optional, Union, Dict, Tuple
@@ -607,17 +608,19 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
 
 
 _COLOR_DATA: Dict[str, Dict[str, str]] = {}
+__lock = threading.Lock()
 
 
 def _load_color_json(lang: str) -> Dict[str, str]:
     global _COLOR_DATA
-    lang = lang.lower().split("-")[0]
-    data = _COLOR_DATA.get(lang, {})
-    if not data:
-        path = f"{os.path.dirname(__file__)}/res/{lang}/colors.json"
-        if os.path.isfile(path):
-            with open(path) as f:
-                _COLOR_DATA[lang] = data = json.load(f)
+    with __lock:
+        lang = lang.lower().split("-")[0]
+        data = _COLOR_DATA.get(lang, {})
+        if not data:
+            path = f"{os.path.dirname(__file__)}/res/{lang}/colors.json"
+            if os.path.isfile(path):
+                with open(path) as f:
+                    _COLOR_DATA[lang] = data = json.load(f)
     return data
 
 
@@ -740,25 +743,27 @@ def _norm(k):
 
 def _load_color_automaton(lang: str) -> ahocorasick.Automaton:
     global _color_automatons
-    if lang in _color_automatons:
-        return _color_automatons[lang]
-    automaton = ahocorasick.Automaton()
-    for hex_str, name in _load_color_json(lang).items():
-        automaton.add_word(_norm(name), hex_str)
-    automaton.make_automaton()
-    _color_automatons[lang] = automaton
+    with __lock:
+        if lang in _color_automatons:
+            return _color_automatons[lang]
+        automaton = ahocorasick.Automaton()
+        for hex_str, name in _load_color_json(lang).items():
+            automaton.add_word(_norm(name), hex_str)
+        automaton.make_automaton()
+        _color_automatons[lang] = automaton
     return automaton
 
 
 def _load_object_automaton(lang: str) -> ahocorasick.Automaton:
     global _object_automatons
-    if lang in _object_automatons:
-        return _object_automatons[lang]
-    automaton = ahocorasick.Automaton()
-    for hex_str, name in _get_object_colors(lang).items():
-        automaton.add_word(_norm(name), hex_str)
-    automaton.make_automaton()
-    _object_automatons[lang] = automaton
+    with __lock:
+        if lang in _object_automatons:
+            return _object_automatons[lang]
+        automaton = ahocorasick.Automaton()
+        for hex_str, name in _get_object_colors(lang).items():
+            automaton.add_word(_norm(name), hex_str)
+        automaton.make_automaton()
+        _object_automatons[lang] = automaton
     return automaton
 
 
