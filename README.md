@@ -413,12 +413,34 @@ approximations.
 
 #### Color Keywords 
 
+
+```python
+# Parse complex color descriptions
+color = color_from_description("very bright, slightly warm muted blue")
+```
+
 To categorize adjectives and keywords that describe color in ways that translate into RGB or color space adjustments the
 parser uses a `.json` file per language
+
+Example JSON structure for English color keywords:
+ 
+```json
+{
+  "saturation": {
+    "high": ["vibrant", "rich", "bold", "deep"],
+    "low": ["dull", "muted", "washed-out", "faded"]
+  },
+  "brightness": {
+    "high": ["bright", "light", "pale", "glowing"],
+    "low": ["dim", "dark", "shadowy", "faint"]
+  }
+}
+```
 
 Color name lists in each language are also used to determine the **hue**. 
 
 > English has a word list of almost ~6000 color name mappings
+
 
 Below are some examples of non-color-name keywords that define other qualities of a color
 
