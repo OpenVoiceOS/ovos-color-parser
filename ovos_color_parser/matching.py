@@ -2,13 +2,13 @@ import json
 import math
 import os.path
 import threading
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict, Tuple, Iterable
 
 import ahocorasick
 from colorspacious import deltaE
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
-from ovos_color_parser.models import Color, sRGBAColor, HLSColor
+from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
 
 
 def color_distance(color_a: Color, color_b: Color) -> float:
@@ -27,29 +27,23 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
     return min(scores, key=lambda k: scores[k])
 
 
-_COLOR_DATA: Dict[str, Dict[str, str]] = {}
-__lock = threading.Lock()
-
-
-def _load_color_json(lang: str) -> Dict[str, str]:
-    global _COLOR_DATA
-    with __lock:
-        lang = lang.lower().split("-")[0]
-        data = _COLOR_DATA.get(lang, {})
-        if not data:
-            path = f"{os.path.dirname(__file__)}/res/{lang}/colors.json"
-            if os.path.isfile(path):
-                with open(path) as f:
-                    _COLOR_DATA[lang] = data = json.load(f)
-    return data
+def _load_color_json(lang: str) -> Iterable[Dict[str, str]]:
+    lang = lang.lower().split("-")[0]
+    p = f"{os.path.dirname(__file__)}/res/{lang}"
+    for wordlist in os.listdir(p):
+        if not wordlist.endswith(".json") or wordlist == "color_descriptors.json":
+            continue
+        with open(f"{p}/{wordlist}") as f:
+            words = json.load(f)
+            yield words
 
 
 def lookup_name(color: Color, lang: str = "en") -> str:
     if not isinstance(color, sRGBAColor):
         color = color.as_rgb
-    data = _load_color_json(lang)
-    if color.hex_str in data:
-        return data[color.hex_str]
+    for colorlist in _load_color_json(lang):
+        if color.hex_str in colorlist:
+            return colorlist[color.hex_str]
     raise ValueError("Unnamed color")
 
 
@@ -81,8 +75,9 @@ class ColorMatcher:
             if lang in cls._color_automatons:
                 return cls._color_automatons[lang]
             automaton = ahocorasick.Automaton()
-            for hex_str, name in _load_color_json(lang).items():
-                automaton.add_word(_norm(name), hex_str)
+            for colorlist in _load_color_json(lang):
+                for hex_str, name in colorlist.items():
+                    automaton.add_word(_norm(name), hex_str)
             automaton.make_automaton()
             cls._color_automatons[lang] = automaton
         return automaton
@@ -100,28 +95,55 @@ class ColorMatcher:
         return automaton
 
     @staticmethod
-    def match_automaton(automaton, description, data_dict, strategy):
-        candidates = []
-        weights = []
-        for _, hex_str in automaton.iter(description):
-            name = data_dict[hex_str]
-            weights.append(fuzzy_match(name, description, strategy=strategy))
-            candidates.append(HLSColor.from_hex_str(hex_str, name=name))
-        return candidates, weights
+    def match_automaton(automaton, description) -> List[str]:
+        return [hex_str for _, hex_str in automaton.iter(_norm(description))]
 
     @classmethod
     def match_color_automaton(cls, description: str, lang: str = "en",
-                              strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY):
-        color_dict = _load_color_json(lang)
+                              strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
+                              fuzzy: bool = False) -> Tuple[HLSColor, float]:
         automaton = ColorMatcher.load_color_automaton(lang)
-        return cls.match_automaton(automaton, description, color_dict, strategy)
+        candidates = []
+        weights = []
+        for color_dict in _load_color_json(lang):
+            if fuzzy:
+                for h, n in color_dict.items():
+                    s = fuzzy_match(_norm(n), _norm(description), strategy=MatchStrategy.TOKEN_SET_RATIO)
+                    if s >= 0.8:
+                        s = fuzzy_match(_norm(n), _norm(description), strategy=strategy)
+                        if s >= 0.15:
+                            #print(f"DEBUG: matched fuzzy color -> {(n, h, s)}")
+                            weights.append(s)
+                            candidates.append(HLSColor.from_hex_str(h, name=n))
+            else:
+                hex_strs = cls.match_automaton(automaton, description)
+                for hex_str in hex_strs:
+                    if hex_str not in color_dict:
+                        continue
+                    name = color_dict[hex_str]
+                    s = fuzzy_match(name, description, strategy=strategy)
+                    if s >= 0.15:
+                        # print(f"DEBUG: matched color -> {(name, hex_str, s)}")
+                        weights.append(s)
+                        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
+        #print(candidates, weights)
+        return zip(candidates, weights)
 
     @classmethod
     def match_object_automaton(cls, description: str, lang: str = "en",
                                strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY):
         obj_dict = cls._get_object_colors(lang)
         automaton = ColorMatcher.load_object_automaton(lang)
-        return cls.match_automaton(automaton, description, obj_dict, strategy)
+        hex_strs = cls.match_automaton(automaton, description)
+        candidates = []
+        weights = []
+        for hex_s in hex_strs:
+            if hex_s not in obj_dict:
+                continue
+            name = obj_dict[hex_s]
+            weights.append(fuzzy_match(name, description, strategy=strategy))
+            candidates.append(HLSColor.from_hex_str(hex_s, name=name))
+        return candidates, weights
 
 
 def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
@@ -184,23 +206,29 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -
     return color
 
 
+def palette_from_description(description: str, lang: str = "en",
+                               strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY) -> sRGBAColorPalette:
+    colors = [c for c, _ in ColorMatcher.match_color_automaton(description, lang, strategy, fuzzy=True)]
+    #print(f"DEBUG: matched color names -> {[(_.name, _.hex_str) for _ in colors]}")
+    return sRGBAColorPalette(colors=[_.as_rgb for _ in colors])
+
+
 def color_from_description(description: str, lang: str = "en",
                            strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
-                           cast_to_palette: bool = False) -> Optional[sRGBAColor]:
+                           cast_to_palette: bool = False,
+                           fuzzy: bool = True) -> Optional[sRGBAColor]:
     candidates: List[HLSColor] = []
     weights: List[float] = []
 
     # step 1 - match color db
-    c, w = ColorMatcher.match_color_automaton(description, lang, strategy)
-    # print(f"DEBUG: matched color names -> {c}")
-    candidates += c
-    weights += w
+    for color, conf in ColorMatcher.match_color_automaton(description, lang, strategy, fuzzy=fuzzy):
+        candidates.append(color)
+        weights.append(conf)
 
     # Step 2 - match object names
-    c, w = ColorMatcher.match_object_automaton(description, lang, strategy)
-    # print(f"DEBUG: matched object name -> {c}")
-    candidates += c
-    weights += w
+    for color, conf in ColorMatcher.match_object_automaton(description, lang, strategy):
+        candidates.append(color)
+        weights.append(conf)
 
     # Step 3 - select base color
     if candidates:
@@ -217,7 +245,9 @@ def color_from_description(description: str, lang: str = "en",
 
     # do not invent colors
     if cast_to_palette:
+        #print(f"DEBUG: candidate colors: {[(_.name, _.hex_str) for _ in candidates]}")
         c = closest_color(c, candidates)
+        #print(f"DEBUG: closest candidate color: {c} {c.hex_str}")
 
     c.description = description
     return c
