@@ -1,10 +1,12 @@
 import json
 import math
 import os.path
+import threading
 from colorsys import rgb_to_hsv, hsv_to_rgb, hls_to_rgb, rgb_to_hls
 from dataclasses import dataclass
 from typing import List, Optional, Union, Dict, Tuple
 
+import ahocorasick
 from colorspacious import deltaE
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
@@ -606,19 +608,19 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
 
 
 _COLOR_DATA: Dict[str, Dict[str, str]] = {}
+__lock = threading.Lock()
 
 
-def _load_color_json(lang: str):
+def _load_color_json(lang: str) -> Dict[str, str]:
     global _COLOR_DATA
-    lang = lang.lower().split("-")[0]
-    if lang in _COLOR_DATA:
-        data = _COLOR_DATA[lang]
-    else:
-        path = f"{os.path.dirname(__file__)}/res/{lang}/colors.json"
-        if not os.path.isfile(path):
-            path = f"{os.path.dirname(__file__)}/webcolors.json"
-        with open(path) as f:
-            _COLOR_DATA[lang] = data = json.load(f)
+    with __lock:
+        lang = lang.lower().split("-")[0]
+        data = _COLOR_DATA.get(lang, {})
+        if not data:
+            path = f"{os.path.dirname(__file__)}/res/{lang}/colors.json"
+            if os.path.isfile(path):
+                with open(path) as f:
+                    _COLOR_DATA[lang] = data = json.load(f)
     return data
 
 
@@ -729,39 +731,83 @@ class FuzzyColor:
         return self.approximation.as_spectral_color
 
 
+#################
+# TODO - keyword matcher class to encapsulate this
+_color_automatons: Dict[str, ahocorasick.Automaton] = {}
+_object_automatons: Dict[str, ahocorasick.Automaton] = {}
+
+
+def _norm(k):
+    """
+    Normalize a string by converting it to lowercase, replacing hyphens and underscores with spaces,
+    and stripping punctuation and whitespace characters.
+    """
+    return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
+
+
+def _load_color_automaton(lang: str) -> ahocorasick.Automaton:
+    global _color_automatons
+    with __lock:
+        if lang in _color_automatons:
+            return _color_automatons[lang]
+        automaton = ahocorasick.Automaton()
+        for hex_str, name in _load_color_json(lang).items():
+            automaton.add_word(_norm(name), hex_str)
+        automaton.make_automaton()
+        _color_automatons[lang] = automaton
+    return automaton
+
+
+def _load_object_automaton(lang: str) -> ahocorasick.Automaton:
+    global _object_automatons
+    with __lock:
+        if lang in _object_automatons:
+            return _object_automatons[lang]
+        automaton = ahocorasick.Automaton()
+        for hex_str, name in _get_object_colors(lang).items():
+            automaton.add_word(_norm(name), hex_str)
+        automaton.make_automaton()
+        _object_automatons[lang] = automaton
+    return automaton
+
+
+def _match_automaton(automaton, description, data_dict, strategy):
+    candidates = []
+    weights = []
+    for _, hex_str in automaton.iter(description):
+        name = data_dict[hex_str]
+        weights.append(fuzzy_match(name, description, strategy=strategy))
+        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
+    return candidates, weights
+
+
+#################
+
+
 def color_from_description(description: str, lang: str = "en",
                            strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
                            cast_to_palette: bool = False) -> Optional[sRGBAColor]:
-    def norm(k):
-        return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
-
-    # TODO - new strategy
-    #  start with lang specific color terms per language to choose base color
-    #  then sum/average any extra colors to it before manipulating saturation/lightness
-    # add concept of "FuzzyColor" object and return a range of hues instead
-
-    # step 1 - match color db
     candidates: List[HLSColor] = []
     weights: List[float] = []
-    for hex_str, name in _load_color_json(lang).items():
-        words = norm(name).split()
-        if any(w in norm(description) for w in words):
-            weights.append(fuzzy_match(name,
-                                       description,
-                                       strategy=strategy))
-            candidates.append(HLSColor.from_hex_str(hex_str, name=name))
-            # print(f"DEBUG: matched color name -> {name}:{hex_str}")
+
+    # step 1 - match color db
+    color_dict = _load_color_json(lang)
+    automaton = _load_color_automaton(lang)
+    c, w = _match_automaton(automaton, description, color_dict, strategy)
+    # print(f"DEBUG: matched color names -> {c}")
+    candidates += c
+    weights += w
 
     # Step 2 - match object names
-    for hex_str, name in _get_object_colors(lang).items():
-        if norm(name) in norm(description).split():
-            # print(f"DEBUG: matched object name -> {name}:{hex_str}")
-            weights.append(fuzzy_match(name,
-                                       description,
-                                       strategy=strategy))
-            candidates.append(HLSColor.from_hex_str(hex_str, name=name))
+    obj_dict = _get_object_colors(lang)
+    automaton = _load_object_automaton(lang)
+    c, w = _match_automaton(automaton, description, obj_dict, strategy)
+    # print(f"DEBUG: matched object name -> {c}")
+    candidates += c
+    weights += w
 
     # Step 3 - select base color
+    # TODO - add concept of "FuzzyColor" object and allow returning a range of hues instead
     if candidates:
         c = average_colors(candidates, weights)
         # c2 = closest_color(c, candidates)
@@ -800,3 +846,93 @@ def average_colors(colors: List[Color], weights: Optional[List[float]] = None) -
     return HLSColor(h=avg_h, l=avg_l, s=avg_s,
                     description=f"Weighted average: {set(zip([c.name for c in colors], weights))}")
 
+
+def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:
+    """
+    Taken from: http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+    Converts from K to RGB, algorithm courtesy of
+    http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+    """
+    # range check
+    if colour_temperature < 1000 or colour_temperature > 40000:
+        raise ValueError("color temperature out of range, only values between 1000 and 40000 supported")
+
+    tmp_internal = colour_temperature / 100.0
+
+    # red
+    if tmp_internal <= 66:
+        red = 255
+    else:
+        tmp_red = 329.698727446 * math.pow(tmp_internal - 60, -0.1332047592)
+        if tmp_red < 0:
+            red = 0
+        elif tmp_red > 255:
+            red = 255
+        else:
+            red = tmp_red
+
+    # green
+    if tmp_internal <= 66:
+        tmp_green = 99.4708025861 * math.log(tmp_internal) - 161.1195681661
+        if tmp_green < 0:
+            green = 0
+        elif tmp_green > 255:
+            green = 255
+        else:
+            green = tmp_green
+    else:
+        tmp_green = 288.1221695283 * math.pow(tmp_internal - 60, -0.0755148492)
+        if tmp_green < 0:
+            green = 0
+        elif tmp_green > 255:
+            green = 255
+        else:
+            green = tmp_green
+
+    # blue
+    if tmp_internal >= 66:
+        blue = 255
+    elif tmp_internal <= 19:
+        blue = 0
+    else:
+        tmp_blue = 138.5177312231 * math.log(tmp_internal - 10) - 305.0447927307
+        if tmp_blue < 0:
+            blue = 0
+        elif tmp_blue > 255:
+            blue = 255
+        else:
+            blue = tmp_blue
+
+    return sRGBAColor(int(red), int(green), int(blue), description=f"{colour_temperature}K")
+
+
+def get_contrasting_black_or_white(hex_code: str) -> sRGBAColor:
+    """Get a contrasting black or white color for text display.
+
+    This gets calculated based off the input color using the YIQ system.
+    https://en.wikipedia.org/wiki/YIQ
+
+    Args:
+        hex_code of base color
+
+    Returns:
+        black or white as a hex_code
+    """
+    color = sRGBAColor.from_hex_str(hex_code)
+    yiq = ((color.r * 299) + (color.g * 587) + (color.b * 114)) / 1000
+    ccolor = sRGBAColor.from_hex_str("#000000", name="white") \
+        if yiq > 125 else sRGBAColor.from_hex_str("#ffffff", name="black")
+    return ccolor
+
+
+def is_hex_code_valid(hex_code: str) -> bool:
+    """Validate whether the input string is a valid hex color code."""
+    # TODO expand to validate 3 char codes.
+    hex_code = hex_code.lstrip("#")
+    try:
+        assert len(hex_code) == 6
+        int(hex_code, 16)
+    except (AssertionError, ValueError):
+        return False
+    else:
+        return True

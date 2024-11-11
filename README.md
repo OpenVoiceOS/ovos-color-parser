@@ -317,6 +317,24 @@ joke.
 </details>
 
 
+<details>
+  <summary>Color Temperature</summary>
+
+As a block of metal heats, its emitted light changes color from red to blue, with each color corresponding to a specific temperature in Kelvin, known as the “Color Temperature.”
+
+For colors based on black-body theory, blue occurs at higher temperatures, whereas red occurs at lower temperatures. This is the opposite of the cultural associations attributed to colors, in which "red" is "hot", and "blue" is "cold".
+
+> **food for thought**: Why are there no green stars?
+
+![img_14.png](img_14.png)
+
+Warmer colors (2700K–3000K) create a welcoming, relaxed atmosphere ideal for residential, hospitality, and lounge spaces, while cooler colors (4000K and above) provide a clean, focused environment suited for commercial, industrial, and some modern residential areas like kitchens.
+
+![img_15.png](img_15.png)
+
+
+</details>
+
 ## Language support
 
 When describing color in natural language to approximate it in RGB, there are several keywords that can convey
@@ -395,12 +413,34 @@ approximations.
 
 #### Color Keywords 
 
+
+```python
+# Parse complex color descriptions
+color = color_from_description("very bright, slightly warm muted blue")
+```
+
 To categorize adjectives and keywords that describe color in ways that translate into RGB or color space adjustments the
 parser uses a `.json` file per language
+
+Example JSON structure for English color keywords:
+ 
+```json
+{
+  "saturation": {
+    "high": ["vibrant", "rich", "bold", "deep"],
+    "low": ["dull", "muted", "washed-out", "faded"]
+  },
+  "brightness": {
+    "high": ["bright", "light", "pale", "glowing"],
+    "low": ["dim", "dark", "shadowy", "faint"]
+  }
+}
+```
 
 Color name lists in each language are also used to determine the **hue**. 
 
 > English has a word list of almost ~6000 color name mappings
+
 
 Below are some examples of non-color-name keywords that define other qualities of a color
 
