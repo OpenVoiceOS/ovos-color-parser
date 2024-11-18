@@ -143,7 +143,7 @@ class ColorMatcher:
             name = obj_dict[hex_s]
             weights.append(fuzzy_match(name, description, strategy=strategy))
             candidates.append(HLSColor.from_hex_str(hex_s, name=name))
-        return candidates, weights
+        return zip(candidates, weights)
 
 
 def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
