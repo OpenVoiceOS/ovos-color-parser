@@ -1,20 +1,12 @@
 # Changelog
 
-## [0.0.2a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.2a2) (2024-11-11)
+## [0.0.3a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.3a2) (2024-12-03)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.2a1...0.0.2a2)
-
-**Merged pull requests:**
-
-- pt-pt/translate [\#7](https://github.com/OpenVoiceOS/ovos-color-parser/pull/7) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
-
-## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.2a1) (2024-11-11)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.1...0.0.2a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.2...0.0.3a2)
 
 **Merged pull requests:**
 
-- pt-pt/translate [\#5](https://github.com/OpenVoiceOS/ovos-color-parser/pull/5) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- mt/basque [\#10](https://github.com/OpenVoiceOS/ovos-color-parser/pull/10) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
 
