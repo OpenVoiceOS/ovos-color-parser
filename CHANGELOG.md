@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- mt/german [\#13](https://github.com/OpenVoiceOS/ovos-color-parser/pull/13) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 - mt/spanish [\#12](https://github.com/OpenVoiceOS/ovos-color-parser/pull/12) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
