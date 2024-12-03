@@ -365,10 +365,12 @@ class ColorTerm:
     def __post_init__(self):
         if not self.hue and self.hex_approximation:
             hls = HLSColor.from_hex_str(self.hex_approximation)
-            self.hue = HueRange(hls.h - 15, hls.h + 15, name=self.name, hex_approximation=self.hex_approximation)
+            self.hue = HueRange(max(0, hls.h - 15), min(360, hls.h + 15), name=self.name, hex_approximation=self.hex_approximation)
         elif not self.hex_approximation and self.hue:
-            self.hex_approximation = self.as_rgb.hex_str
-
+            try:
+                self.hex_approximation = self.as_rgb.hex_str
+            except:
+                pass
 
 @dataclass
 class LanguageColorVocabulary:
