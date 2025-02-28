@@ -1,2 +1,2 @@
 ovos-color-parser==0.0.8a1
-└── ovos-skill-color-picker==0.0.5 [requires: ovos-color-parser]
+└── ovos-skill-color-picker==0.0.7 [requires: ovos-color-parser]
