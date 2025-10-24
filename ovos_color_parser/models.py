@@ -55,9 +55,14 @@ class sRGBAColor:
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBAColor':
         if hex_str.startswith('#'):
             hex_str = hex_str[1:]
-        r = int(hex_str[0:2], 16)
-        g = int(hex_str[2:4], 16)
-        b = int(hex_str[4:6], 16)
+        if len(hex_str) == 6:
+            r = int(hex_str[0:2], 16)
+            g = int(hex_str[2:4], 16)
+            b = int(hex_str[4:6], 16)
+        if len(hex_str) == 3:
+            r = int(hex_str[0:1], 16)
+            g = int(hex_str[1:2], 16)
+            b = int(hex_str[2:3], 16)
         return sRGBAColor(r, g, b, name=name, description=description)
 
     def __post_init__(self):
