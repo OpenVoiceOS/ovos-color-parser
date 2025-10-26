@@ -52,7 +52,7 @@ with open(f"{BASEDIR}/README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='ovos-color-parser',
+    name='ovos_color_parser',
     version=get_version(),
     packages=['ovos_color_parser'],
     url='https://github.com/OpenVoiceOS/ovos-color-parser',
