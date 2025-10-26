@@ -1,20 +1,16 @@
 # Changelog
 
-## [0.0.8a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.8a2) (2025-03-30)
+## [0.0.9a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a1) (2025-10-26)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.8a1...0.0.8a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.8...0.0.9a1)
 
-**Merged pull requests:**
+**Fixed bugs:**
 
-- es-es/translate [\#27](https://github.com/OpenVoiceOS/ovos-color-parser/pull/27) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
-
-## [0.0.8a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.8a1) (2024-12-11)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.7...0.0.8a1)
+- Error with black color [\#29](https://github.com/OpenVoiceOS/ovos-color-parser/issues/29)
 
 **Merged pull requests:**
 
-- de-de/translate [\#24](https://github.com/OpenVoiceOS/ovos-color-parser/pull/24) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- fixes https://github.com/OpenVoiceOS/ovos-color-parser/issues/29 [\#30](https://github.com/OpenVoiceOS/ovos-color-parser/pull/30) ([builderjer](https://github.com/builderjer))
 
 
 
