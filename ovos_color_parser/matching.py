@@ -114,7 +114,11 @@ class ColorMatcher:
                         if s >= 0.15:
                             #print(f"DEBUG: matched fuzzy color -> {(n, h, s)}")
                             weights.append(s)
-                            candidates.append(HLSColor.from_hex_str(h, name=n))
+                            try:
+                                candidates.append(HLSColor.from_hex_str(h, name=n))
+                            except ValueError as e:
+                                #print(f"DEBUG: {e}")
+                                pass
             else:
                 hex_strs = cls.match_automaton(automaton, description)
                 for hex_str in hex_strs:
