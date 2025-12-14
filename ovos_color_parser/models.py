@@ -28,6 +28,10 @@ class sRGBAColor:
         return self.as_hsv.as_spectral_color
 
     @property
+    def as_rgb(self) -> 'RGBa Tuple':
+        return (self.r, self.g, self.b, self.a)
+    
+    @property
     def as_hls(self) -> 'HLSColor':
         r = self.r / 255
         g = self.g / 255
