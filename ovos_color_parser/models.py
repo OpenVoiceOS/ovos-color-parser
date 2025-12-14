@@ -29,7 +29,7 @@ class sRGBAColor:
 
     @property
     def as_rgb(self) -> 'RGBa Tuple':
-        return (self.r, self.g, self.b, self.a)
+        return (self.r, self.g, self.b)
     
     @property
     def as_hls(self) -> 'HLSColor':
