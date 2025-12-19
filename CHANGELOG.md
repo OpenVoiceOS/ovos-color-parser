@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.9a5](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a5) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a4...0.0.9a5)
+
+**Merged pull requests:**
+
+- Update dependency python to 3.14 [\#37](https://github.com/OpenVoiceOS/ovos-color-parser/pull/37) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.0.9a4](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a4) (2025-12-18)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a3...0.0.9a4)
