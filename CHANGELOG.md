@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.9a7](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a7) (2026-01-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a6...0.0.9a7)
+
+**Merged pull requests:**
+
+- da-dk/translate [\#43](https://github.com/OpenVoiceOS/ovos-color-parser/pull/43) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- Update actions/setup-python action to v6 [\#41](https://github.com/OpenVoiceOS/ovos-color-parser/pull/41) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.0.9a6](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a6) (2026-01-19)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a5...0.0.9a6)
