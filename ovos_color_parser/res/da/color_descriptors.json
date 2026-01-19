@@ -93,7 +93,8 @@
     "blækket",
     "kul",
     "kul",
-    "tomrum"
+    "tomrum",
+    "ugyldig"
   ],
   "very_high_temperature": [
     "brændende",
@@ -187,6 +188,7 @@
     "gennemsigtig",
     "tåget",
     "vaporous",
-    "hviske tynd"
+    "hviske tynd",
+    "hviske tyndt"
   ]
 }
