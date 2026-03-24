@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.10a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.10a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a8...0.0.10a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#46](https://github.com/OpenVoiceOS/ovos-color-parser/pull/46) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- Add French color lexicons [\#45](https://github.com/OpenVoiceOS/ovos-color-parser/pull/45) ([goldyfruit](https://github.com/goldyfruit))
+- Update actions/checkout action to v6 [\#38](https://github.com/OpenVoiceOS/ovos-color-parser/pull/38) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.0.9a8](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a8) (2026-01-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a7...0.0.9a8)
+
 ## [0.0.9a7](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a7) (2026-01-19)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a6...0.0.9a7)
