@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.10a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.10a2) (2026-03-25)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.10a1...0.0.10a2)
+
+**Merged pull requests:**
+
+- added italian [\#47](https://github.com/OpenVoiceOS/ovos-color-parser/pull/47) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+
 ## [0.0.10a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.10a1) (2026-03-24)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a8...0.0.10a1)
