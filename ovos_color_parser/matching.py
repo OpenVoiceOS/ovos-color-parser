@@ -27,9 +27,46 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
     return min(scores, key=lambda k: scores[k])
 
 
+_RES_ROOT = f"{os.path.dirname(__file__)}/res"
+
+
+def _resolve_lang_dir(lang: str) -> Optional[str]:
+    """Resolve a requested language tag to an existing ``res/<locale>`` directory.
+
+    The shipped resources are stored under full BCP-47 locale folders
+    (``en-US``, ``de-DE``, ...). Instead of blindly stripping the region,
+    pick the best matching directory:
+
+    1. exact case-insensitive full-locale match (``en-us`` -> ``en-US``),
+    2. same primary language subtag (``en`` / ``en-GB`` -> ``en-US``).
+
+    Returns the absolute directory path, or ``None`` if nothing matches.
+    """
+    if not lang:
+        return None
+    available = [d for d in os.listdir(_RES_ROOT)
+                 if os.path.isdir(f"{_RES_ROOT}/{d}")]
+    by_lower = {d.lower(): d for d in available}
+
+    requested = lang.lower().replace("_", "-")
+    # 1) exact full-locale match
+    if requested in by_lower:
+        return f"{_RES_ROOT}/{by_lower[requested]}"
+    # 2) same primary subtag (prefer the bare-subtag dir if present,
+    #    then any locale sharing that subtag)
+    primary = requested.split("-")[0]
+    if primary in by_lower:
+        return f"{_RES_ROOT}/{by_lower[primary]}"
+    for d in sorted(available):
+        if d.lower().split("-")[0] == primary:
+            return f"{_RES_ROOT}/{d}"
+    return None
+
+
 def _load_color_json(lang: str) -> Iterable[Dict[str, str]]:
-    lang = lang.lower().split("-")[0]
-    p = f"{os.path.dirname(__file__)}/res/{lang}"
+    p = _resolve_lang_dir(lang)
+    if not p:
+        return
     for wordlist in os.listdir(p):
         if not wordlist.endswith(".json") or wordlist == "color_descriptors.json":
             continue
@@ -62,8 +99,10 @@ class ColorMatcher:
 
     @staticmethod
     def _get_object_colors(lang: str) -> Dict[str, str]:
-        lang = lang.lower().split("-")[0]
-        path = f"{os.path.dirname(__file__)}/res/{lang}/object_colors.json"
+        res_dir = _resolve_lang_dir(lang)
+        if not res_dir:
+            return {}
+        path = f"{res_dir}/object_colors.json"
         if not os.path.isfile(path):
             return {}
         with open(path) as f:
@@ -78,7 +117,8 @@ class ColorMatcher:
             for colorlist in _load_color_json(lang):
                 for hex_str, name in colorlist.items():
                     automaton.add_word(_norm(name), hex_str)
-            automaton.make_automaton()
+            if len(automaton):
+                automaton.make_automaton()
             cls._color_automatons[lang] = automaton
         return automaton
 
@@ -90,12 +130,17 @@ class ColorMatcher:
             automaton = ahocorasick.Automaton()
             for hex_str, name in cls._get_object_colors(lang).items():
                 automaton.add_word(_norm(name), hex_str)
-            automaton.make_automaton()
+            if len(automaton):
+                automaton.make_automaton()
             cls._object_automatons[lang] = automaton
         return automaton
 
     @staticmethod
     def match_automaton(automaton, description) -> List[str]:
+        # an automaton built from an empty wordlist (e.g. a locale without
+        # object_colors.json) is never converted via make_automaton()
+        if len(automaton) == 0:
+            return []
         return [hex_str for _, hex_str in automaton.iter(_norm(description))]
 
     @classmethod
@@ -151,8 +196,10 @@ class ColorMatcher:
 
 
 def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
-    lang = lang.lower().split("-")[0]
-    path = f"{os.path.dirname(__file__)}/res/{lang}/color_descriptors.json"
+    res_dir = _resolve_lang_dir(lang)
+    if not res_dir:
+        return {}
+    path = f"{res_dir}/color_descriptors.json"
     if not os.path.isfile(path):
         return {}
     with open(path) as f:
@@ -162,6 +209,10 @@ def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
 def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -> sRGBAColor:
     if not isinstance(color, HLSColor):
         color = color.as_hls
+
+    # no descriptor wordlist for this locale -> nothing to adjust
+    if not adjectives:
+        return color.as_rgb
 
     description = description.lower().strip()
 
