@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.13a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.13a1) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.12a1...0.0.13a1)
+
+**Merged pull requests:**
+
+- fix: correct color math and matching contract bugs [\#52](https://github.com/OpenVoiceOS/ovos-color-parser/pull/52) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.12a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.12a1) (2026-07-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.10a2...0.0.12a1)
