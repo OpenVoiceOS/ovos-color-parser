@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.13a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.13a2) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.13a1...0.0.13a2)
+
+**Merged pull requests:**
+
+- test: add unit test suite and CI workflow [\#53](https://github.com/OpenVoiceOS/ovos-color-parser/pull/53) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.13a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.13a1) (2026-07-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.12a1...0.0.13a1)
