@@ -146,7 +146,7 @@ class ColorMatcher:
     @classmethod
     def match_color_automaton(cls, description: str, lang: str = "en",
                               strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
-                              fuzzy: bool = False) -> Tuple[HLSColor, float]:
+                              fuzzy: bool = False) -> List[Tuple[HLSColor, float]]:
         automaton = ColorMatcher.load_color_automaton(lang)
         candidates = []
         weights = []
@@ -176,11 +176,12 @@ class ColorMatcher:
                         weights.append(s)
                         candidates.append(HLSColor.from_hex_str(hex_str, name=name))
         #print(candidates, weights)
-        return zip(candidates, weights)
+        return list(zip(candidates, weights))
 
     @classmethod
     def match_object_automaton(cls, description: str, lang: str = "en",
-                               strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY):
+                               strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY
+                               ) -> List[Tuple[HLSColor, float]]:
         obj_dict = cls._get_object_colors(lang)
         automaton = ColorMatcher.load_object_automaton(lang)
         hex_strs = cls.match_automaton(automaton, description)
@@ -192,7 +193,7 @@ class ColorMatcher:
             name = obj_dict[hex_s]
             weights.append(fuzzy_match(name, description, strategy=strategy))
             candidates.append(HLSColor.from_hex_str(hex_s, name=name))
-        return zip(candidates, weights)
+        return list(zip(candidates, weights))
 
 
 def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
@@ -216,47 +217,51 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -
 
     description = description.lower().strip()
 
+    def matches(key: str) -> bool:
+        return any(word.lower() in description for word in adjectives.get(key, []))
+
     # Saturation adjustments with additive/subtractive control
-    if any(word.lower() in description for word in adjectives["very_high_saturation"]):
+    if matches("very_high_saturation"):
         color.s = min(1.0, color.s + 0.2)  # Increase saturation
-    elif any(word.lower() in description for word in adjectives["high_saturation"]):
+    elif matches("high_saturation"):
         color.s = min(1.0, color.s + 0.1)
-    elif any(word.lower() in description for word in adjectives["low_saturation"]):
+    elif matches("low_saturation"):
         color.s = max(0.0, color.s - 0.1)
-    elif any(word.lower() in description for word in adjectives["very_low_saturation"]):
+    elif matches("very_low_saturation"):
         color.s = max(0.0, color.s - 0.2)
 
     # Brightness adjustments with gamma-like control
-    if any(word.lower() in description for word in adjectives["very_high_brightness"]):
+    if matches("very_high_brightness"):
         color.l = min(1.0, color.l + 0.2)
-    elif any(word.lower() in description for word in adjectives["high_brightness"]):
+    elif matches("high_brightness"):
         color.l = min(1.0, color.l + 0.1)
-    elif any(word.lower() in description for word in adjectives["low_brightness"]):
+    elif matches("low_brightness"):
         color.l = max(0.0, color.l - 0.1)
-    elif any(word.lower() in description for word in adjectives["very_low_brightness"]):
+    elif matches("very_low_brightness"):
         color.l = max(0.0, color.l - 0.2)
 
-    # Opacity adjustments
-    if any(word.lower() in description for word in adjectives["very_high_opacity"]):
-        color.a = min(1.0, color.a * 1.5)
-    elif any(word.lower() in description for word in adjectives["high_opacity"]):
-        color.a = min(1.0, color.a * 1.2)
-    elif any(word.lower() in description for word in adjectives["low_opacity"]):
-        color.a = max(0.0, color.a * 0.7)
-    elif any(word.lower() in description for word in adjectives["very_low_opacity"]):
-        color.a = max(0.0, color.a * 0.5)
-
-    # Temperature adjustments using RGB tinting
     color = color.as_rgb
-    if any(word.lower() in description for word in adjectives["very_high_temperature"]):
-        color.r = min(1.0, color.r + 0.1)
-        color.g = max(0.0, color.g - 0.05)  # Add warmth by reducing blue tones
-    elif any(word.lower() in description for word in adjectives["high_temperature"]):
-        color.r = min(1.0, color.r + 0.05)
-    elif any(word.lower() in description for word in adjectives["low_temperature"]):
-        color.b = min(1.0, color.b + 0.05)  # Add coolness by increasing blue tones
-    elif any(word.lower() in description for word in adjectives["very_low_temperature"]):
-        color.b = min(1.0, color.b + 0.1)
+
+    # Opacity adjustments (alpha channel, 0-255)
+    if matches("very_high_opacity"):
+        color.a = min(255, round(color.a * 1.5))
+    elif matches("high_opacity"):
+        color.a = min(255, round(color.a * 1.2))
+    elif matches("low_opacity"):
+        color.a = max(0, round(color.a * 0.7))
+    elif matches("very_low_opacity"):
+        color.a = max(0, round(color.a * 0.5))
+
+    # Temperature adjustments using RGB tinting (channels are 0-255)
+    if matches("very_high_temperature"):
+        color.r = min(255, color.r + 26)
+        color.g = max(0, color.g - 13)  # Add warmth by reducing green/blue tones
+    elif matches("high_temperature"):
+        color.r = min(255, color.r + 13)
+    elif matches("low_temperature"):
+        color.b = min(255, color.b + 13)  # Add coolness by increasing blue tones
+    elif matches("very_low_temperature"):
+        color.b = min(255, color.b + 26)
 
     return color
 
@@ -309,6 +314,10 @@ def color_from_description(description: str, lang: str = "en",
 
 
 def average_colors(colors: List[Color], weights: Optional[List[float]] = None) -> HLSColor:
+    if not colors:
+        raise ValueError("colors must be a non-empty list")
+    if weights is not None and len(weights) != len(colors):
+        raise ValueError("weights must have the same length as colors")
     colors = [c if isinstance(c, HLSColor) else c.as_hls for c in colors]
     weights = weights or [1 / len(colors) for c in colors]
 
@@ -400,22 +409,21 @@ def get_contrasting_black_or_white(hex_code: str) -> sRGBAColor:
     """
     color = sRGBAColor.from_hex_str(hex_code)
     yiq = ((color.r * 299) + (color.g * 587) + (color.b * 114)) / 1000
-    ccolor = sRGBAColor.from_hex_str("#000000", name="white") \
-        if yiq > 125 else sRGBAColor.from_hex_str("#ffffff", name="black")
+    ccolor = sRGBAColor.from_hex_str("#000000", name="black") \
+        if yiq > 125 else sRGBAColor.from_hex_str("#ffffff", name="white")
     return ccolor
 
 
 def is_hex_code_valid(hex_code: str) -> bool:
-    """Validate whether the input string is a valid hex color code."""
-    # TODO expand to validate 3 char codes.
+    """Validate whether the input string is a valid 3 or 6 digit hex color code."""
     hex_code = hex_code.lstrip("#")
-    try:
-        assert len(hex_code) == 6
-        int(hex_code, 16)
-    except (AssertionError, ValueError):
+    if len(hex_code) not in (3, 6):
         return False
-    else:
-        return True
+    try:
+        int(hex_code, 16)
+    except ValueError:
+        return False
+    return True
 
 
 def rgb_to_cmyk(r, g, b, cmyk_scale=100, rgb_scale=255) -> Tuple[float, float, float, float]:
