@@ -23,6 +23,7 @@ ANCHORS = {
     "fr": ("rouge", "bleu"),
     "it": ("rosso", "blu"),
     "nl": ("rood", "blauw"),
+    "oc": ("roge", "blau"),
     "pl": ("czerwony", "niebieski"),
     "pt": ("vermelho", "azul"),
     "ru": ("красный", "синий"),
