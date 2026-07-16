@@ -28,6 +28,7 @@ ANCHORS = {
     "it": ("rosso", "blu"),
     "kab": ("azeggaɣ", "anili"),
     "nl": ("rood", "blauw"),
+    "oc": ("roge", "blau"),
     "pl": ("czerwony", "niebieski"),
     "pt": ("vermelho", "azul"),
     "ro": ("roșu", "albastru"),
