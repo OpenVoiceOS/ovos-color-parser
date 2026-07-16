@@ -29,6 +29,9 @@ ANCHORS = {
     "pt": ("vermelho", "azul"),
     "ro": ("roșu", "albastru"),
     "ru": ("красный", "синий"),
+    "sk": ("červená", "modrá"),
+    "hr": ("crvena", "plava"),
+    "bg": ("червено", "синьо"),
 }
 
 
