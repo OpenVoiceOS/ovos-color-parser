@@ -13,6 +13,7 @@ RES = os.path.join(os.path.dirname(__file__), "..", "ovos_color_parser", "res")
 
 # lang -> (red word, blue word)
 ANCHORS = {
+    "ar": ("أحمر", "أزرق"),
     "en": ("red", "blue"),
     "ca": ("vermell", "blau"),
     "cs": ("červená", "modrá"),
