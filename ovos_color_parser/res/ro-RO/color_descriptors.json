@@ -1,0 +1,95 @@
+{
+  "very_high_saturation": [
+    "neon",
+    "saturat",
+    "intens",
+    "electric",
+    "țipător",
+    "hipervibrant"
+  ],
+  "high_saturation": [
+    "viu",
+    "vibrant",
+    "puternic",
+    "bogat",
+    "aprins",
+    "strălucitor"
+  ],
+  "low_saturation": [
+    "pal",
+    "șters",
+    "spălăcit",
+    "pastel",
+    "estompat",
+    "mat",
+    "discret"
+  ],
+  "very_low_saturation": [
+    "monoton",
+    "cenușiu",
+    "decolorat",
+    "fad",
+    "aproape gri"
+  ],
+  "very_high_brightness": [
+    "foarte deschis",
+    "foarte luminos",
+    "aproape alb",
+    "orbitor"
+  ],
+  "high_brightness": [
+    "deschis",
+    "deschisă",
+    "luminos",
+    "luminat",
+    "clar"
+  ],
+  "low_brightness": [
+    "închis",
+    "închisă",
+    "întunecat",
+    "umbrit",
+    "sumbru"
+  ],
+  "very_low_brightness": [
+    "foarte închis",
+    "foarte întunecat",
+    "aproape negru",
+    "ca noaptea"
+  ],
+  "very_high_temperature": [
+    "fierbinte",
+    "incandescent",
+    "arzător"
+  ],
+  "high_temperature": [
+    "cald",
+    "călduros",
+    "caldă"
+  ],
+  "low_temperature": [
+    "rece",
+    "răcoros"
+  ],
+  "very_low_temperature": [
+    "înghețat",
+    "glacial",
+    "ca gheața"
+  ],
+  "very_high_opacity": [
+    "complet opac",
+    "solid"
+  ],
+  "high_opacity": [
+    "opac",
+    "dens"
+  ],
+  "low_opacity": [
+    "translucid",
+    "diafan"
+  ],
+  "very_low_opacity": [
+    "transparent",
+    "aproape transparent"
+  ]
+}

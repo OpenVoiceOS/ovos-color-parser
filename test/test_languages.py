@@ -27,6 +27,7 @@ ANCHORS = {
     "nl": ("rood", "blauw"),
     "pl": ("czerwony", "niebieski"),
     "pt": ("vermelho", "azul"),
+    "ro": ("roșu", "albastru"),
     "ru": ("красный", "синий"),
 }
 
