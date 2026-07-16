@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.3.0a1) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.2.0a1...0.3.0a1)
+
+**Merged pull requests:**
+
+- feat\(ro\): Romanian color wordlists [\#60](https://github.com/OpenVoiceOS/ovos-color-parser/pull/60) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.2.0a1) (2026-07-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.1.0a1...0.2.0a1)
