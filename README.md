@@ -41,6 +41,16 @@ Basque, Catalan, Czech, Danish, Dutch, English, French, German, Italian, Polish,
 and Spanish. Any BCP-47 tag resolves to the closest bundled locale (for example `en-GB` → `en-US`).
 The per-language feature matrix is in [docs/languages.md](docs/languages.md).
 
+## Documentation
+
+- [Usage guide](docs/usage.md) — extraction, impossible colors, comparing colors
+- [Color description semantics](docs/keywords.md) — how hue, saturation, brightness,
+  temperature and opacity keywords map to color math
+- [Color, language and color spaces](docs/color-theory.md) — how languages carve up
+  color space, and the color models used
+- [API reference](docs/api.md)
+- [Language support](docs/languages.md)
+
 ## Usage notes
 
 Color names are ambiguous — the same name can map to several hex values across wordlists. When
