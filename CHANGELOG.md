@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.1.0a1) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.14a2...0.1.0a1)
+
+**Merged pull requests:**
+
+- feat: arabic color names [\#56](https://github.com/OpenVoiceOS/ovos-color-parser/pull/56) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.14a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.14a2) (2026-07-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.14a1...0.0.14a2)
