@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.12a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.12a1) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.10a2...0.0.12a1)
+
+**Closed issues:**
+
+- Region subtag stripped but res/ ships only full locales -\> non-Italian langs raise FileNotFoundError [\#50](https://github.com/OpenVoiceOS/ovos-color-parser/issues/50)
+
+**Merged pull requests:**
+
+- fix: resolve locale resource dirs by best match instead of stripping the region [\#51](https://github.com/OpenVoiceOS/ovos-color-parser/pull/51) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.10a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.10a2) (2026-03-25)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.10a1...0.0.10a2)
