@@ -23,6 +23,7 @@ ANCHORS = {
     "eu": ("gorria", "urdina"),
     "fr": ("rouge", "bleu"),
     "it": ("rosso", "blu"),
+    "kab": ("azeggaɣ", "anili"),
     "nl": ("rood", "blauw"),
     "pl": ("czerwony", "niebieski"),
     "pt": ("vermelho", "azul"),

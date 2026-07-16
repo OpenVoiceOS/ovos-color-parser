@@ -19,6 +19,7 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 | eu-ES | 8011 | yes | no | 5 |
 | fr-FR | 14712 | yes | yes | 16 |
 | it-IT | ~6900 | yes | no | 5 |
+| kab-DZ | 12 | no | no | 1 |
 | nl-NL | 101 | no | no | 1 |
 | pl-PL | 173 | no | no | 1 |
 | pt-BR | ~8300 | yes | yes | 15 |
@@ -31,6 +32,13 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 
 Every public function accepts every language: locales lacking a resource degrade gracefully
 instead of raising.
+
+## Kabyle notes
+
+Kabyle colexifies blue and green: `azegzaw` covers both and is mapped to both hexes ("grue").
+`anili` (indigo), `azenǧǧari` (sky blue) and `amuri` (navy) name specific blues; `adal`,
+`azemmuri` (olive) and `aqesli` (light green) are attested greens. Only attested terms ship;
+modifier keywords are omitted for lack of sources.
 
 ## Wordlist sources
 
