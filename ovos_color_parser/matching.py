@@ -8,6 +8,8 @@ import ahocorasick
 from colorspacious import deltaE
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
+from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
+                                    GamutPolicy, fit_to_gamut)
 from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
 
 
@@ -314,26 +316,25 @@ def color_from_description(description: str, lang: str = "en",
 
 
 def average_colors(colors: List[Color], weights: Optional[List[float]] = None) -> HLSColor:
+    """Weighted mix of colors, returned as an :class:`HLSColor`.
+
+    The mix is computed in **linear-light sRGB** (see :mod:`core.space`), which is
+    how light physically combines. Averaging in gamma-encoded HLS instead darkens
+    and desaturates the result — the classic "muddy blend" artefact. Named inputs
+    are recorded in the description without leaking Python container internals.
+    """
     if not colors:
         raise ValueError("colors must be a non-empty list")
     if weights is not None and len(weights) != len(colors):
         raise ValueError("weights must have the same length as colors")
-    colors = [c if isinstance(c, HLSColor) else c.as_hls for c in colors]
-    weights = weights or [1 / len(colors) for c in colors]
 
-    # Step 1: Weighted averages for Lightness and Saturation
-    total_weight = sum(weights)
-    avg_l = sum(c.l * w for c, w in zip(colors, weights)) / total_weight
-    avg_s = sum(c.s * w for c, w in zip(colors, weights)) / total_weight
+    rgbs = [c if isinstance(c, sRGBAColor) else c.as_rgb for c in colors]
+    lin = blend_linear([srgb8_to_linear(c.r, c.g, c.b, c.a) for c in rgbs], weights)
+    r, g, b, a = linear_to_srgb8(lin)
 
-    # Step 2: Weighted circular mean for Hue
-    sin_sum = sum(math.sin(math.radians(c.h)) * w for c, w in zip(colors, weights))
-    cos_sum = sum(math.cos(math.radians(c.h)) * w for c, w in zip(colors, weights))
-    avg_h = int(math.degrees(math.atan2(sin_sum, cos_sum)) % 360)  # Ensure hue is in [0, 360)
-
-    # Return new averaged HLSColor
-    return HLSColor(h=avg_h, l=avg_l, s=avg_s,
-                    description=f"Weighted average: {set(zip([c.name for c in colors], weights))}")
+    names = [c.name for c in colors if getattr(c, "name", None)]
+    desc = "Weighted average of " + (", ".join(names) if names else f"{len(colors)} colors")
+    return sRGBAColor(r, g, b, a, description=desc).as_hls
 
 
 def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:

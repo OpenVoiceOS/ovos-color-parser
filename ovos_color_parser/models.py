@@ -256,17 +256,32 @@ class HueRange:
                     break
         return specolor
 
-    @property
-    def as_rgb(self) -> 'sRGBAColorPalette':
-        return sRGBAColorPalette(colors=[])  # TODO
+    def sample(self, steps: int = 5) -> 'HSVColorPalette':
+        """Sample ``steps`` evenly-spaced fully-saturated hues across the range.
 
-    @property
-    def as_hls(self) -> 'HLSColorPalette':
-        return HLSColorPalette(colors=[])  # TODO
+        A :class:`HueRange` covers a band of hues, so its palette representation is
+        that band sampled into concrete colors rather than a single point. ``steps``
+        is clamped to at least 1; a zero-width range yields a single color.
+        """
+        steps = max(1, steps)
+        lo, hi = self.min_hue_approximation, self.max_hue_approximation
+        if hi == lo or steps == 1:
+            hues = [self.hue]
+        else:
+            hues = [round(lo + (hi - lo) * i / (steps - 1)) for i in range(steps)]
+        return HSVColorPalette(colors=[HSVColor(h, 1.0, 1.0, name=self.name) for h in hues])
 
     @property
     def as_hsv(self) -> 'HSVColorPalette':
-        return HSVColorPalette(colors=[])  # TODO
+        return self.sample()
+
+    @property
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return self.as_hsv.as_rgb
+
+    @property
+    def as_hls(self) -> 'HLSColorPalette':
+        return self.as_hsv.as_hls
 
     # Convert hue range to wavelength range in nanometers
     @staticmethod
