@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos_color_parser"
+description = "OpenVoiceOS's multilingual color parsing and formatting library"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "JarbasAI", email = "jarbasai@mailfence.com" },
+]
+keywords = ["colors", "parsing", "nlp", "multilingual", "ovos"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Text Processing :: Linguistic",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/OpenVoiceOS/ovos-color-parser"
+Source = "https://github.com/OpenVoiceOS/ovos-color-parser"
+Issues = "https://github.com/OpenVoiceOS/ovos-color-parser/issues"
+
+[tool.setuptools]
+packages = ["ovos_color_parser"]
+
+[tool.setuptools.package-data]
+ovos_color_parser = ["res/*.json", "res/*/*.json"]
+
+[tool.setuptools.dynamic]
+version = { attr = "ovos_color_parser.version.__version__" }
+dependencies = { file = ["requirements.txt"] }

@@ -21,7 +21,7 @@ class sRGBAColor:
     description: Optional[str] = None
 
     def __hash__(self):
-        return int(f"{self.r}{self.g}{self.b}")
+        return hash((self.r, self.g, self.b, self.a))
 
     @property
     def as_spectral_color(self) -> 'SpectralColor':
@@ -33,7 +33,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, l, s = rgb_to_hls(r, g, b)
-        return HLSColor(int(h * 360), l, min(1, s),
+        return HLSColor(round(h * 360), l, min(1, s),
                         name=self.name,
                         description=self.description)
 
@@ -43,7 +43,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, s, v = rgb_to_hsv(r, g, b)
-        return HSVColor(int(h * 360), s, v,
+        return HSVColor(round(h * 360), s, v,
                         name=self.name,
                         description=self.description)
 
@@ -55,19 +55,24 @@ class sRGBAColor:
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBAColor':
         if hex_str.startswith('#'):
             hex_str = hex_str[1:]
-        r = int(hex_str[0:2], 16)
-        g = int(hex_str[2:4], 16)
-        b = int(hex_str[4:6], 16)
+        if len(hex_str) == 6:
+            r = int(hex_str[0:2], 16)
+            g = int(hex_str[2:4], 16)
+            b = int(hex_str[4:6], 16)
+        elif len(hex_str) == 3:
+            r = int(hex_str[0:1] * 2, 16)
+            g = int(hex_str[1:2] * 2, 16)
+            b = int(hex_str[2:3] * 2, 16)
+        else:
+            raise ValueError(f"Invalid hex sting {hex_str}")
         return sRGBAColor(r, g, b, name=name, description=description)
 
     def __post_init__(self):
-        # Enforce hue values between 0 and 360
-        if not (0 <= self.r <= 255) or not (0 <= self.r <= 255):
+        # Enforce channel values between 0 and 255
+        if not (0 <= self.r <= 255 and 0 <= self.g <= 255 and 0 <= self.b <= 255):
             raise ValueError("RGB values must be in the range 0 to 255")
-        if not (0 <= self.g <= 255) or not (0 <= self.g <= 255):
-            raise ValueError("RGB values must be in the range 0 to 255")
-        if not (0 <= self.b <= 255) or not (0 <= self.b <= 255):
-            raise ValueError("RGB values must be in the range 0 to 255")
+        if not 0 <= self.a <= 255:
+            raise ValueError("Alpha value must be in the range 0 to 255")
 
 
 @dataclass
@@ -92,7 +97,7 @@ class HSVColor:
     @property
     def as_rgb(self) -> 'sRGBAColor':
         r, g, b = hsv_to_rgb(self.h / 360, self.s, self.v)
-        return sRGBAColor(int(r * 255), int(g * 255), int(b * 255),
+        return sRGBAColor(round(r * 255), round(g * 255), round(b * 255),
                           name=self.name,
                           description=self.description)
 
@@ -131,7 +136,7 @@ class HLSColor:
     @property
     def as_rgb(self) -> 'sRGBAColor':
         r, g, b = hls_to_rgb(self.h / 360, self.l, self.s)
-        return sRGBAColor(int(r * 255), int(g * 255), int(b * 255),
+        return sRGBAColor(round(r * 255), round(g * 255), round(b * 255),
                           name=self.name,
                           description=self.description)
 
@@ -556,10 +561,10 @@ EnglishColorTerms = LanguageColorVocabulary(terms=[
     ColorTerm("green", HueRange(90, 150), "#008000"),
     ColorTerm("cyan", HueRange(150, 180), "#00FFFF"),
     ColorTerm("blue", HueRange(180, 240), "#0000FF"),
-    ColorTerm("purple", HueRange(240, 270, "#800080")),
-    ColorTerm("magenta", HueRange(270, 300, "#FF00FF")),
-    ColorTerm("pink", HueRange(300, 330, "#FFC0CB")),
-    ColorTerm("red", HueRange(330, 360, "#FF0000"))
+    ColorTerm("purple", HueRange(240, 270), "#800080"),
+    ColorTerm("magenta", HueRange(270, 300), "#FF00FF"),
+    ColorTerm("pink", HueRange(300, 330), "#FFC0CB"),
+    ColorTerm("red", HueRange(330, 360), "#FF0000")
 ])
 
 # using xcolor and terms defined in https://www.nature.com/articles/s41599-022-01045-3

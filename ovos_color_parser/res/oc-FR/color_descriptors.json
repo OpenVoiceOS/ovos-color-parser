@@ -1,0 +1,37 @@
+{
+  "very_high_saturation": [],
+  "high_saturation": [
+    "viu",
+    "intens"
+  ],
+  "low_saturation": [
+    "pastèl",
+    "palle"
+  ],
+  "very_low_saturation": [],
+  "very_high_brightness": [],
+  "high_brightness": [
+    "clar"
+  ],
+  "low_brightness": [
+    "escur",
+    "sorne"
+  ],
+  "very_low_brightness": [],
+  "very_high_temperature": [],
+  "high_temperature": [
+    "caud"
+  ],
+  "low_temperature": [
+    "freg"
+  ],
+  "very_low_temperature": [],
+  "very_high_opacity": [
+    "opac"
+  ],
+  "high_opacity": [],
+  "low_opacity": [],
+  "very_low_opacity": [
+    "transparent"
+  ]
+}
