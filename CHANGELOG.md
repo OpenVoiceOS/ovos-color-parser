@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0a4](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a4) (2026-07-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a3...0.4.0a4)
+
+**Merged pull requests:**
+
+- ca-es/translate [\#42](https://github.com/OpenVoiceOS/ovos-color-parser/pull/42) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+
 ## [0.4.0a3](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a3) (2026-07-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a2...0.4.0a3)
@@ -14,6 +22,7 @@
 
 **Merged pull requests:**
 
+- Release 0.4.0a2 [\#63](https://github.com/OpenVoiceOS/ovos-color-parser/pull/63) ([github-actions[bot]](https://github.com/apps/github-actions))
 - chore: migrate packaging to pyproject.toml and add LICENSE [\#62](https://github.com/OpenVoiceOS/ovos-color-parser/pull/62) ([JarbasAl](https://github.com/JarbasAl))
 - feat: add Occitan \(oc-FR\) color wordlists [\#58](https://github.com/OpenVoiceOS/ovos-color-parser/pull/58) ([JarbasAl](https://github.com/JarbasAl))
 
@@ -147,6 +156,7 @@
 
 **Merged pull requests:**
 
+- Release 0.0.9a4 [\#40](https://github.com/OpenVoiceOS/ovos-color-parser/pull/40) ([github-actions[bot]](https://github.com/apps/github-actions))
 - Configure Renovate [\#36](https://github.com/OpenVoiceOS/ovos-color-parser/pull/36) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.0.9a3](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a3) (2025-11-17)
@@ -155,11 +165,16 @@
 
 **Merged pull requests:**
 
+- Release 0.0.9a3 [\#34](https://github.com/OpenVoiceOS/ovos-color-parser/pull/34) ([github-actions[bot]](https://github.com/apps/github-actions))
 - ca-es/translate [\#33](https://github.com/OpenVoiceOS/ovos-color-parser/pull/33) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 ## [0.0.9a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a2) (2025-10-26)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.0.9a1...0.0.9a2)
+
+**Merged pull requests:**
+
+- Release 0.0.9a2 [\#32](https://github.com/OpenVoiceOS/ovos-color-parser/pull/32) ([github-actions[bot]](https://github.com/apps/github-actions))
 
 ## [0.0.9a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.0.9a1) (2025-10-26)
 
@@ -171,6 +186,7 @@
 
 **Merged pull requests:**
 
+- Release 0.0.9a1 [\#31](https://github.com/OpenVoiceOS/ovos-color-parser/pull/31) ([github-actions[bot]](https://github.com/apps/github-actions))
 - fixes https://github.com/OpenVoiceOS/ovos-color-parser/issues/29 [\#30](https://github.com/OpenVoiceOS/ovos-color-parser/pull/30) ([builderjer](https://github.com/builderjer))
 
 
