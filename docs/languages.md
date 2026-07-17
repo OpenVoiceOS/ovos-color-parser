@@ -11,7 +11,7 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 | Locale | Language | Color name entries | Modifier keywords¹ | Object colors² |
 |---|---|---|---|---|
 | an-ES | Aragonese | 14 | no | no |
-| ar-SA | Arabic | 23 | yes | no |
+| ar-SA | Arabic | 72 | yes | yes |
 | ast-ES | Asturian | 17 | no | no |
 | bg-BG | Bulgarian | 32 | no | no |
 | ca-ES | Catalan | 3134 | no | no |
@@ -49,6 +49,31 @@ The largest wordlists (Danish, English, French) share the full ~14.7k-entry set 
 colors, the xkcd survey, crayola, RAL, Pantone and more. Smaller locales ship curated basic and
 traditional color terms; they resolve common names accurately but will snap unusual descriptions
 to a nearer basic color.
+
+## Arabic notes
+
+Arabic ships four color wordlists plus object colors and modifier keywords. `colors.json`
+holds Modern Standard Arabic (fuṣḥā) basic and extended shades — teal (`أزرق مخضر`),
+cyan (`سيان`), coral (`مرجاني`), lavender (`خزامي`), khaki (`كاكي`), mustard (`خردلي`),
+mint (`نعناعي`), amber (`كهرماني`), burgundy (`عنابي`) and more. `dialectal_colors.json`
+adds colloquial terms spanning the major dialect areas: Egyptian (`بمبي` pink, `لبني`
+light blue, `بترولي` petrol), Levantine/Shami (`روز` rose, `جوزي` walnut brown),
+Gulf/Khaleeji (`قهوائي` coffee-brown, `عسلي` honey, `سكري` sugar-cream), Iraqi
+(`طوبي` brick-red, `جكليتي` chocolate-brown) and Maghrebi/Darija (`بلو` blue). Multiple
+names map to a shared hex, so synonyms and dialectal variants resolve to the same color.
+
+Because normalization does not strip Arabic diacritics or unify letter forms,
+`orthographic_variants.json` ships the spellings a user might type differently: the
+hamza-less initial alef (`احمر` for `أحمر`), alef-maqṣūra for final yāʾ (`بنفسجى`), and
+an explicitly vowelled form (`أَحْمَر`). `object_colors.json` maps prototypical objects to
+their color, including dialectal object words (`طماطم` vs Levantine `بندورة` for tomato,
+`موز` banana-yellow, `سماء` sky-blue, `دم` blood-red, `ذهب` gold). `color_descriptors.json`
+covers Standard and dialectal modifiers for brightness, saturation, temperature and
+opacity (dark `غامق`/`غانق`, light `فاتح`/`فاقع`).
+
+A locale-level Arabic normalizer (folding hamza forms, tāʾ marbūṭa and tashkeel at match
+time) would let a single canonical spelling cover every written variant and is a natural
+follow-up; the shipped variant entries keep matching robust without touching shared code.
 
 ## Kabyle notes
 
