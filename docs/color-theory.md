@@ -174,7 +174,16 @@ As a block of metal heats, its emitted light changes color from red to blue, wit
 
 For colors based on black-body theory, blue occurs at higher temperatures, whereas red occurs at lower temperatures. This is the opposite of the cultural associations attributed to colors, in which "red" is "hot", and "blue" is "cold".
 
-> **food for thought**: Why are there no green stars?
+There are no green stars, and black-body theory explains why. A star radiates across the whole
+visible spectrum at once, and its color is the eye's integral of that whole curve, not its peak
+wavelength. The temperature whose peak sits in the green (around 5,300–5,800 K, roughly the Sun)
+also emits ample red and blue, and red plus green plus blue reads as white — which is why the Sun
+is essentially white. Cooler stars peak in the red with a weak blue tail and look red or orange;
+hotter stars peak toward blue and ultraviolet and look blue-white. The path from cool to hot runs
+red → orange → yellow-white → white → blue-white and never passes through green. Only a
+narrow-band emitter (a laser, a neon sign) can look green; a broad-band thermal radiator cannot.
+The same is true of `convert_K_to_RGB`: across its full 1000 K–40000 K range it returns warm reds
+and oranges through white to cool blues, and never a green.
 
 ![img_14.png](img/img_14.png)
 
