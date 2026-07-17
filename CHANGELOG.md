@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.0a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a2) (2026-07-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a1...0.4.0a2)
+
+**Merged pull requests:**
+
+- chore: migrate packaging to pyproject.toml and add LICENSE [\#62](https://github.com/OpenVoiceOS/ovos-color-parser/pull/62) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Occitan \(oc-FR\) color wordlists [\#58](https://github.com/OpenVoiceOS/ovos-color-parser/pull/58) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.4.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a1) (2026-07-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.3.0a1...0.4.0a1)
+
+**Merged pull requests:**
+
+- feat: add Slovak, Croatian and Bulgarian color wordlists [\#61](https://github.com/OpenVoiceOS/ovos-color-parser/pull/61) ([JarbasAl](https://github.com/JarbasAl))
+- feat: west frisian, aragonese and asturian color terms [\#57](https://github.com/OpenVoiceOS/ovos-color-parser/pull/57) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.3.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.3.0a1) (2026-07-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.2.0a1...0.3.0a1)
