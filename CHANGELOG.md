@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.11.0a13](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.0a13) (2026-07-17)
+## [0.11.0a14](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.0a14) (2026-07-17)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.6.0a1...0.11.0a13)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.6.0a1...0.11.0a14)
 
 **Merged pull requests:**
 
