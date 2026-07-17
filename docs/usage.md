@@ -1,138 +1,153 @@
 # Usage guide
 
-## Extracting a color from text
+## Parsing a color from text
 
-The parser will do it's best to parse "color modifiers"
-
-```python
-from ovos_color_parser import color_from_description
-
-names = [
-    "Bright, vibrant green",
-    "Pale pink",
-    "Muted, warm gray",
-    "Dark, cool blue",
-  
-]
-for n in names:
-    c = color_from_description(n)
-    print(c.hex_str)
-    print(c)
-```
-![img_7.png](img/img_7.png)
-
-Color names are ambiguous, the same name sometimes refers to multiple colors. When a color is matched by the parser it "averages all matched colors"
-```python
-from ovos_color_parser import color_from_description
-
-color = color_from_description("Red")
-print(color.hex_str)  #D21B1B
-print(color) 
-# sRGBColor(r=210, g=27, b=27, name='Red', description='Red')
-```
-![img_9.png](img/img_9.png)
-
-
-We can tell the parser to always return a known/named color with `cast_to_palette=True`, but this might not always return what you expect
-```python
-from ovos_color_parser import color_from_description
-
-color = color_from_description("Red", cast_to_palette=True)
-print(color.hex_str)  #CE202B
-print(color)
-# sRGBColor(r=206, g=32, b=43, name='Fire engine red', description='Red')
-```
-
-![img_8.png](img/img_8.png)
-
-### Beware of impossible colors
-
-Some colors are [impossible](https://en.wikipedia.org/wiki/Impossible_color), but that doesn't stop text from describing them
-
-`"Reddish-green"` doesn’t make much sense as a description, unless you mean yellow or orange, which you don’t, because you would have said “yellow” or “orange”. The same applies to `"Yellowish–blue"`
-
-> the Colour of Magic or the King Colour, was the eighth colour of the Discworld spectrum. 
-Only visible to wizards and cats. It is described in "The Colour of Magic" as the colour of imagination and is a fluorescent greenish yellow-purple. 
-The only time non-wizards can see it is when they close their eyes; the bursts of color are octarine.
-
-<details>
-  <summary>Why is this color impossible?</summary>
-
-Fluorescent greenish-yellow and purple are essentially opposite colors on the color wheel, with wavelengths that can’t coexist in a single light wave in the visible spectrum. Here’s why:
-
-1. Color Wavelengths and Light: Greenish-yellow light falls in a wavelength range of about 560–590 nanometers, while purple is not a pure spectral color but a combination of blue (around 450–495 nm) and red (around 620–750 nm). Human eyes perceive purple as a combination of these two ends of the spectrum.
-2. Color Opponency Theory: The human visual system relies on color opponency, where certain pairs of colors (like red-green and blue-yellow) are processed in opposing channels. Because of this, our brains can’t interpret colors that simultaneously activate both ends of an opponent channel. This is why we don’t perceive colors like reddish-green or yellowish-blue—our brains are simply wired to cancel out those combinations.
-3. Perceptual Limits: Fluorescent colors are especially intense because they emit light in a narrow, concentrated wavelength range, making them appear very saturated and bright. Attempting to mix fluorescent greenish-yellow with purple not only challenges the physiology of the eye but would also result in a muted brown or gray tone, as the colors cancel each other out.
-
-In short, fluorescent greenish-yellow and purple light can’t coexist in a way our eyes can interpret as a single, stable color because of the biological limits of human color perception.
-</details>
+`color_from_description` matches color names and object names in a phrase, blends the matches, and
+applies any modifier keywords it finds.
 
 ```python
 from ovos_color_parser import color_from_description
 
-# look! an impossible color
-color = color_from_description("fluorescent greenish-yellow purple")
-color.name = "Octarine"
-print(color.hex_str) #76B11D
-print(color)
-# sRGBColor(r=118, g=177, b=29, name='Octarine', description='fluorescent greenish-yellow purple')
+for phrase in ["bright vibrant green", "pale pink", "muted warm gray", "dark cool blue"]:
+    c = color_from_description(phrase)
+    print(f"{phrase:20} -> {c.hex_str}  {c.name}")
 ```
-the parser will gladly output something... it just might not make sense
 
-in this case the parser focused on `"greenish-yellow"`
+Names are matched on word boundaries, so "red" is found in "dark red" but not inside "shredded", and
+modifier words behave the same way ("light" applies in "light blue" but not in "flighty"). More
+specific names carry more weight in the blend: "moss green" pulls the result toward moss, not toward a
+generic green.
 
-![img_10.png](img/img_10.png)
+An unrecognised phrase, or a language with no bundled locale, yields `None`.
 
-but it could have focused on `"purple"`
+```python
+color_from_description("qzxwv")          # None
+color_from_description("red", lang="zz") # None
+```
 
-![img_12.png](img/img_12.png)
+## Ambiguity and named colors
 
-## Comparing color objects
+The same name can refer to several hex values across wordlists. By default the parser blends every
+match in linear light:
 
-compare color distances (smaller is better)
+```python
+color_from_description("red").hex_str    # "#B84D54"
+```
+
+Pass `cast_to_palette=True` to snap the result to the closest matched named color instead of the
+blend, so the output is always a real, named entry:
+
+```python
+c = color_from_description("red", cast_to_palette=True)
+print(c.name, c.hex_str)                 # "Dusty Red" "#..."
+```
+
+## Modifiers
+
+Modifier keywords adjust the matched color. They fall into four groups, each with a "high" and "low"
+direction and a stronger "very" variant:
+
+| Group | Effect | Example words |
+|---|---|---|
+| Saturation | chroma up/down | vivid, rich / muted, washed-out |
+| Brightness | lighter/darker | bright, light / dim, dark |
+| Temperature | warmer/cooler | warm, fiery / cool, icy |
+| Opacity | alpha up/down | opaque, solid / sheer, transparent |
+
+```python
+base = color_from_description("blue")
+darker = color_from_description("dark blue")
+lighter = color_from_description("light blue")
+print(darker.as_hls.l < base.as_hls.l)   # True
+print(lighter.as_hls.l > base.as_hls.l)  # True
+```
+
+The keyword lists live in each locale's `color_descriptors.json`. A locale without that file still
+matches color names; its modifiers are simply not applied. See
+[Color description semantics](keywords.md) for the full mapping.
+
+## Color namespaces
+
+Each wordlist is a named namespace — `webcolors`, `crayola`, `RAL_classic`, `xkcd_colors` and so on.
+
+```python
+from ovos_color_parser import lookup_name, palette_names, sRGBAColor
+
+palette_names("en")                      # ['colors', '99colors', 'crayola', ...]
+
+red = sRGBAColor.from_hex_str("#FF0000")
+lookup_name(red, "en")                                   # "Red"
+lookup_name(red, "en", namespace="crayola", nearest=True)  # "Permanent Geranium Lake"
+```
+
+`lookup_name` resolves in a fixed priority (common palettes before niche catalogs) so a color always
+resolves to the same name. Restrict it to one namespace with `namespace=`, and allow the perceptually
+nearest match with `nearest=True`. Without `nearest`, a color that is not in scope raises
+`ValueError`.
+
+## Impossible and out-of-gamut colors
+
+Some phrases describe colors that cannot exist. `"reddish green"` and `"yellowish blue"` sit on
+opposite ends of an opponent channel; the visual system cancels them rather than perceiving a single
+color. The parser still returns something — it blends whatever names it matches:
+
+```python
+color_from_description("reddish green")  # a muted result, not a meaningful color
+```
+
+A computed color can also fall outside the sRGB gamut, for example after strong warmth or brightness
+adjustments. The `gamut` argument decides how that is resolved:
+
+```python
+from ovos_color_parser import color_from_description, GamutPolicy
+
+color_from_description("warm bright red", gamut=GamutPolicy.CLAMP)   # clip each channel (default)
+color_from_description("warm bright red", gamut=GamutPolicy.MAP)     # desaturate toward grey, keep hue
+color_from_description("warm bright red", gamut=GamutPolicy.REJECT)  # raise on out-of-gamut
+```
+
+Wavelength colors outside human vision are flagged rather than faked:
+
+```python
+from ovos_color_parser.models import IRSpectralColors
+IRSpectralColors.colors[0].is_visible    # False
+```
+
+## Comparing colors
+
+`color_distance` is the perceptual CIEDE2000 difference — smaller is more similar.
 
 ```python
 from ovos_color_parser import color_distance, color_from_description
 
-color_a = color_from_description("green")
-color_b = color_from_description("purple")
-print(color_distance(color_a, color_b))
-# 64.97192890677195
-
-color_a = color_from_description("green")
-color_b = color_from_description("yellow")
-print(color_distance(color_a, color_b))
-# 44.557493285361
-
-color_a = color_from_description("yellow")
-color_b = color_from_description("purple")
-print(color_distance(color_a, color_b))
-# 78.08287998809946
+color_distance(color_from_description("green"), color_from_description("yellow"))  # ~44
+color_distance(color_from_description("green"), color_from_description("purple"))  # ~63
 ```
 
-match a color object to a list of colors
+`closest_color` picks the nearest option from a palette:
 
 ```python
 from ovos_color_parser import sRGBAColor, sRGBAColorPalette, closest_color
 
-# https://en.wikipedia.org/wiki/Blue-green
-BlueGreenPalette = sRGBAColorPalette(colors=[
-  sRGBAColor(r=0, g=128, b=128, name="Blue-green"),
-  sRGBAColor(r=0, g=255, b=255, name="Cyan (Aqua)", description="Brilliant bluish green"),
-  sRGBAColor(r=64, g=224, b=208, name="Turquoise", description="Brilliant bluish green"),
-  sRGBAColor(r=17, g=100, b=180, name="Green-blue", description="Strong blue"),
-  sRGBAColor(r=57, g=55, b=223, name="Bondi blue"),
-  sRGBAColor(r=0, g=165, b=156, name="Blue green (Munsell)", description="Brilliant bluish green"),
-  sRGBAColor(r=0, g=123, b=167, name="Cerulean", description="Strong greenish blue"),
-  sRGBAColor(r=0, g=63, b=255, name="Cerulean (RGB)", description="Vivid blue"),
-  sRGBAColor(r=0, g=128, b=128, name="Teal", description="Moderate bluish green"),
+palette = sRGBAColorPalette(colors=[
+    sRGBAColor(0, 128, 128, name="Teal"),
+    sRGBAColor(64, 224, 208, name="Turquoise"),
+    sRGBAColor(0, 63, 255, name="Cerulean"),
 ])
-
-print(closest_color(sRGBAColor(r=0, g=0, b=255, name="Blue"),
-                    BlueGreenPalette.colors))
-# sRGBColor(r=0, g=63, b=255, name='Cerulean (RGB)', description='Vivid blue')
-print(closest_color(sRGBAColor(r=0, g=255, b=0, name="Green"),
-                    BlueGreenPalette.colors))
-# sRGBColor(r=64, g=224, b=208, name='Turquoise', description='Brilliant bluish green')
+closest_color(sRGBAColor(0, 0, 255, name="Blue"), palette.colors).name  # "Cerulean"
 ```
 
+## Isolated and custom matching
+
+`ColorMatcher` can be instantiated for a single language, or with injected vocabularies for a closed
+set of colors:
+
+```python
+from ovos_color_parser import ColorMatcher
+
+matcher = ColorMatcher("en")
+matcher.match_colors("moss green")
+
+custom = ColorMatcher("xx", color_palettes=[{"#FF0000": "rood", "#0000FF": "blauw"}])
+custom.match_colors("maak het rood")     # matches "rood"
+```
