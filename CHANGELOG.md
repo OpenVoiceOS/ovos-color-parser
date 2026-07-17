@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.7.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.7.0a1) (2026-07-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.6.0a1...0.7.0a1)
+
+**Merged pull requests:**
+
+- feat: add Vietnamese \(vi-VN\) color locale [\#93](https://github.com/OpenVoiceOS/ovos-color-parser/pull/93) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Hindi \(hi-IN\) color locale [\#92](https://github.com/OpenVoiceOS/ovos-color-parser/pull/92) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Korean \(ko-KR\) color locale [\#91](https://github.com/OpenVoiceOS/ovos-color-parser/pull/91) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Japanese \(ja-JP\) color locale [\#90](https://github.com/OpenVoiceOS/ovos-color-parser/pull/90) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Mandarin Chinese \(zh-CN\) color locale [\#89](https://github.com/OpenVoiceOS/ovos-color-parser/pull/89) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Azerbaijani \(az-AZ\) color locale [\#88](https://github.com/OpenVoiceOS/ovos-color-parser/pull/88) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Turkish \(tr-TR\) color locale [\#87](https://github.com/OpenVoiceOS/ovos-color-parser/pull/87) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Persian \(fa-IR\) color locale [\#86](https://github.com/OpenVoiceOS/ovos-color-parser/pull/86) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Hebrew \(he-IL\) color locale [\#85](https://github.com/OpenVoiceOS/ovos-color-parser/pull/85) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Mirandese \(mwl-PT\) color locale [\#84](https://github.com/OpenVoiceOS/ovos-color-parser/pull/84) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Malay \(ms-MY\) color locale [\#83](https://github.com/OpenVoiceOS/ovos-color-parser/pull/83) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Indonesian \(id-ID\) color locale [\#82](https://github.com/OpenVoiceOS/ovos-color-parser/pull/82) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Galician \(gl-ES\) color locale [\#81](https://github.com/OpenVoiceOS/ovos-color-parser/pull/81) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Slovene \(sl-SI\) color locale [\#80](https://github.com/OpenVoiceOS/ovos-color-parser/pull/80) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Ukrainian \(uk-UA\) color locale [\#79](https://github.com/OpenVoiceOS/ovos-color-parser/pull/79) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Hungarian \(hu-HU\) color locale [\#78](https://github.com/OpenVoiceOS/ovos-color-parser/pull/78) ([JarbasAl](https://github.com/JarbasAl))
+- feat: add Greek \(el-GR\) color locale [\#77](https://github.com/OpenVoiceOS/ovos-color-parser/pull/77) ([JarbasAl](https://github.com/JarbasAl))
+- feat: Estonian \(et\) color vocabulary [\#76](https://github.com/OpenVoiceOS/ovos-color-parser/pull/76) ([JarbasAl](https://github.com/JarbasAl))
+- feat: Finnish \(fi\) color vocabulary [\#75](https://github.com/OpenVoiceOS/ovos-color-parser/pull/75) ([JarbasAl](https://github.com/JarbasAl))
+- feat: Norwegian Nynorsk \(nn\) color vocabulary [\#74](https://github.com/OpenVoiceOS/ovos-color-parser/pull/74) ([JarbasAl](https://github.com/JarbasAl))
+- feat: Norwegian Bokmål \(nb\) color vocabulary [\#73](https://github.com/OpenVoiceOS/ovos-color-parser/pull/73) ([JarbasAl](https://github.com/JarbasAl))
+- feat: Swedish \(sv\) color vocabulary [\#72](https://github.com/OpenVoiceOS/ovos-color-parser/pull/72) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.6.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.6.0a1) (2026-07-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.5.0a1...0.6.0a1)
