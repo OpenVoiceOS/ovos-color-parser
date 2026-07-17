@@ -12,7 +12,7 @@ from ovos_color_parser import (color_from_description, sRGBAColor,
 
 
 def to_css_theme(spec: dict, lang: str = "en") -> dict:
-    """{"--accent": "vivid teal"} -> {"--accent": "#0aa4a4"}."""
+    """{"--accent": "vivid teal"} -> {"--accent": "#38bfc4"}."""
     theme = {}
     for var, description in spec.items():
         color = color_from_description(description, lang=lang)

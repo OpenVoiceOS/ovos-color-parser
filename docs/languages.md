@@ -14,7 +14,7 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 | ar-SA | Arabic | 72 | yes | yes |
 | ast-ES | Asturian | 17 | no | no |
 | bg-BG | Bulgarian | 32 | no | no |
-| ca-ES | Catalan | 3134 | no | no |
+| ca-ES | Catalan | 3421 | no | no |
 | cs-CZ | Czech | 54 | no | no |
 | da-DK | Danish | 14712 | yes | yes |
 | de-DE | German | 1548 | yes | no |

@@ -7,15 +7,16 @@ now warm white"), accessibility labels, or alt-text.
     pip install ovos-color-parser
     python describe_rgb.py
 
-`lookup_name` snaps the color to the nearest entry in a language's wordlist and
-returns its name, so the same color speaks correctly in any supported language.
+With `nearest=True`, `lookup_name` snaps an arbitrary color to the perceptually
+closest entry in a language's wordlist and returns its name, so any color — not
+just exact wordlist hits — speaks correctly in any supported language.
 """
 from ovos_color_parser import sRGBAColor, lookup_name, get_contrasting_black_or_white
 
 
 def describe(rgb, lang: str = "en") -> str:
     color = sRGBAColor(*rgb)
-    return lookup_name(color, lang=lang)
+    return lookup_name(color, lang=lang, nearest=True)
 
 
 if __name__ == "__main__":
@@ -40,6 +41,6 @@ if __name__ == "__main__":
     print("\nHex from a color picker -> a sentence for TTS\n")
     for hex_code in ("#2E8B57", "#FFB6C1", "#36454F"):
         color = sRGBAColor.from_hex_str(hex_code)
-        name = lookup_name(color, lang="en")
+        name = lookup_name(color, lang="en", nearest=True)
         ink = get_contrasting_black_or_white(hex_code).name  # readable label color
         print(f"  {hex_code}: \"The color is {name.lower()}.\"  (label text: {ink})")
