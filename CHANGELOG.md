@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0a5](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a5) (2026-07-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a4...0.4.0a5)
+
+**Merged pull requests:**
+
+- Update actions/checkout action to v7 [\#49](https://github.com/OpenVoiceOS/ovos-color-parser/pull/49) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.4.0a4](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.4.0a4) (2026-07-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a3...0.4.0a4)
