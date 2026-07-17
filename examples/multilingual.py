@@ -15,6 +15,15 @@ WORDS = {
     "da": "rød",
     "ca": "vermell",
     "eu": "gorria",
+    "ar": "أحمر",
+    "ro": "roșu",
+    "sk": "červená",
+    "hr": "crvena",
+    "bg": "червено",
+    "oc": "roge",
+    "an": "royo",
+    "ast": "bermeyu",
+    "fy": "read",
 }
 
 for lang, word in WORDS.items():

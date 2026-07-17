@@ -8,22 +8,34 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 
 ## Feature matrix
 
-| Locale | Color name entries | Modifier keywords¹ | Object colors² | Wordlist files |
+| Locale | Language | Color name entries | Modifier keywords¹ | Object colors² |
 |---|---|---|---|---|
-| ca-ES | 3134 | no | no | 5 |
-| cs-CZ | 54 | no | no | 1 |
-| da-DK | 14712 | yes | yes | 16 |
-| de-DE | 1548 | yes | no | 4 |
-| en-US | 14712 | yes | yes | 16 |
-| es-ES | 7250 | yes | no | 4 |
-| eu-ES | 8011 | yes | no | 5 |
-| fr-FR | 14712 | yes | yes | 16 |
-| it-IT | ~6900 | yes | no | 5 |
-| kab-DZ | 12 | no | no | 1 |
-| nl-NL | 101 | no | no | 1 |
-| pl-PL | 173 | no | no | 1 |
-| pt-BR | ~8300 | yes | yes | 15 |
-| ru-RU | 216 | no | no | 1 |
+| an-ES | Aragonese | 14 | no | no |
+| ar-SA | Arabic | 23 | yes | no |
+| ast-ES | Asturian | 17 | no | no |
+| bg-BG | Bulgarian | 32 | no | no |
+| ca-ES | Catalan | 3134 | no | no |
+| cs-CZ | Czech | 54 | no | no |
+| da-DK | Danish | 14712 | yes | yes |
+| de-DE | German | 1548 | yes | no |
+| en-US | English | 14712 | yes | yes |
+| es-ES | Spanish | 7250 | yes | no |
+| eu-ES | Basque | 8011 | yes | no |
+| fr-FR | French | 14712 | yes | yes |
+| fy-NL | West Frisian | 15 | no | no |
+| hr-HR | Croatian | 30 | no | no |
+| it-IT | Italian | 6820 | yes | no |
+| kab-DZ | Kabyle | 12 | no | no |
+| nl-NL | Dutch | 101 | no | no |
+| oc-FR | Occitan | 23 | yes | no |
+| pl-PL | Polish | 173 | no | no |
+| pt-BR | Portuguese | 8238 | yes | yes |
+| ro-RO | Romanian | 101 | yes | no |
+| ru-RU | Russian | 216 | no | no |
+| sk-SK | Slovak | 35 | no | no |
+
+23 locales. `color_from_description` accepts any BCP-47 tag and resolves it to the closest
+bundled locale.
 
 ¹ `color_descriptors.json`: saturation/brightness/temperature/opacity adjectives ("dark", "vivid",
 "warm", "transparent"). Locales without it still match color names; modifiers are simply ignored.
@@ -32,6 +44,11 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 
 Every public function accepts every language: locales lacking a resource degrade gracefully
 instead of raising.
+
+The largest wordlists (Danish, English, French) share the full ~14.7k-entry set covering web
+colors, the xkcd survey, crayola, RAL, Pantone and more. Smaller locales ship curated basic and
+traditional color terms; they resolve common names accurately but will snap unusual descriptions
+to a nearer basic color.
 
 ## Kabyle notes
 
@@ -48,8 +65,5 @@ traditional Japanese colors and Wikipedia's list of colors.
 
 ## Adding a language
 
-1. Create `ovos_color_parser/res/<lang>-<REGION>/colors.json` with `{"#RRGGBB": "name", ...}`.
-2. Optionally add more wordlist files (any `*.json` with the same shape).
-3. Optionally add `color_descriptors.json` (copy the key structure from `en-US`) and
-   `object_colors.json`.
-4. Add anchor words for the language to `test/test_languages.py`.
+See [extending.md](extending.md#adding-a-language) for the step-by-step guide to adding a locale,
+shipping custom wordlists, and enabling modifier keywords.

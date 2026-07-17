@@ -1,6 +1,8 @@
 # OVOS Color Parser
 
-Parse natural-language color descriptions into color objects, and name colors, in 13 languages.
+Turn natural-language color descriptions into color objects, and color objects back into
+names, in 23 languages. Pure Python, zero network, no ML model — just bundled wordlists and
+color math.
 
 ```python
 from ovos_color_parser import color_from_description
@@ -10,16 +12,32 @@ print(c.hex_str)   # "#371013"
 print(c.as_hls)    # HLSColor(h=352, l=0.145..., s=0.522..., ...)
 ```
 
-Designed for voice interfaces:
-
-- "change the lamp color to moss green"
-- "make it darker"
-- "a warmer white"
+It ships as part of the OpenVoiceOS voice stack, but it is a standalone library first: nothing
+here imports OVOS. It is equally useful for NER over free text, describing colors for
+text-to-speech, and mapping color descriptions to hex for UI theming or LED control.
 
 ## Installation
 
 ```bash
 pip install ovos-color-parser
+# or, with uv:
+uv pip install ovos-color-parser
+```
+
+## 30-second quickstart
+
+```python
+from ovos_color_parser import color_from_description, lookup_name, sRGBAColor
+
+# text -> color
+c = color_from_description("warm mustard yellow", lang="en")
+print(c.hex_str, (c.r, c.g, c.b))     # #F6BC26 (246, 188, 38)
+
+# color -> text (any supported language)
+print(lookup_name(sRGBAColor.from_hex_str("#1E90FF"), lang="pt"))  # "Dodger Azul"
+
+# nothing matches -> None
+print(color_from_description("qzxwv", lang="en"))  # None
 ```
 
 ## Features
@@ -35,11 +53,78 @@ pip install ovos-color-parser
   hue mean, Kelvin color temperature to RGB, CMYK conversion, contrasting black/white text color and
   hex validation.
 
+## Use it anywhere
+
+Every snippet below is plain Python — `pip install ovos-color-parser` and run it. Each has a
+matching runnable script in [examples/](examples/).
+
+### Extract colors from free text (NER)
+
+Pull color references out of a sentence and resolve each to a structured color — no ML model,
+no network. Great for tagging product copy, design briefs or support tickets.
+
+```python
+from ovos_color_parser import color_from_description
+
+text = "Paint the fence dark forest green and the door navy blue"
+for phrase in ("dark forest green", "navy blue"):
+    c = color_from_description(phrase, lang="en", fuzzy=False)
+    print(phrase, "->", c.hex_str)   # dark forest green -> #020C05 ; navy blue -> #0B32B4
+```
+
+Full sliding-window extractor with span offsets: [examples/ner_colors.py](examples/ner_colors.py).
+
+### Describe a color out loud (TTS-adjacent)
+
+Go the other way: a raw RGB/hex value from a color picker, sensor or smart bulb becomes a
+speakable name.
+
+```python
+from ovos_color_parser import sRGBAColor, lookup_name
+
+c = sRGBAColor.from_hex_str("#2E8B57")
+print(f"The color is {lookup_name(c, lang='en').lower()}.")   # "The color is sea green."
+```
+
+See [examples/describe_rgb.py](examples/describe_rgb.py).
+
+### Map descriptions to hex for UI, theming and LEDs
+
+```python
+from ovos_color_parser import color_from_description
+
+theme = {var: color_from_description(desc, lang="en").hex_str.lower()
+         for var, desc in {"--accent": "vivid teal", "--bg": "very dark blue"}.items()}
+print(theme)   # {'--accent': '#00d0cc', '--bg': '#070d24'}
+```
+
+CSS variables, NeoPixel/WLED tuples and Kelvin white-balance in
+[examples/ui_theming.py](examples/ui_theming.py).
+
+### In an OVOS skill vs. standalone
+
+The same call powers a voice intent and a plain script — only the surrounding code differs:
+
+```python
+# standalone color utility
+from ovos_color_parser import color_from_description
+hex_str = color_from_description("moss green", lang="en").hex_str
+
+# inside an OVOS skill handler
+def handle_set_color(self, message):
+    utterance = message.data["utterance"]
+    color = color_from_description(utterance, lang=self.lang)
+    if color:
+        self.set_lamp(color.hex_str)
+```
+
 ## Supported languages
 
-Basque, Catalan, Czech, Danish, Dutch, English, French, German, Italian, Polish, Portuguese, Russian
-and Spanish. Any BCP-47 tag resolves to the closest bundled locale (for example `en-GB` → `en-US`).
-The per-language feature matrix is in [docs/languages.md](docs/languages.md).
+23 locales: Aragonese, Arabic, Asturian, Basque, Bulgarian, Catalan, Croatian, Czech, Danish,
+Dutch, English, French, German, Italian, Kabyle, Occitan, Polish, Portuguese, Romanian, Russian,
+Slovak, Spanish and West Frisian. Any BCP-47 tag resolves to the closest bundled locale (for
+example `en-GB` → `en-US`). The per-language feature matrix — entry counts, modifier and object
+support — is in [docs/languages.md](docs/languages.md).
 
 ## Documentation
 
@@ -49,7 +134,17 @@ The per-language feature matrix is in [docs/languages.md](docs/languages.md).
 - [Color, language and color spaces](docs/color-theory.md) — how languages carve up
   color space, and the color models used
 - [API reference](docs/api.md)
-- [Language support](docs/languages.md)
+- [Language support](docs/languages.md) — the 23 locales and their per-language vocabulary
+- [Extending](docs/extending.md) — custom wordlists, adding a language, integration patterns
+
+### Runnable examples
+
+- [parse_colors.py](examples/parse_colors.py) — descriptions to colors, modifiers, `cast_to_palette`
+- [describe_rgb.py](examples/describe_rgb.py) — RGB/hex to a spoken color name (TTS)
+- [ner_colors.py](examples/ner_colors.py) — extract color spans from free text (NER)
+- [ui_theming.py](examples/ui_theming.py) — descriptions to CSS/LED/Kelvin values
+- [multilingual.py](examples/multilingual.py) — the same colors across all languages
+- [color_math.py](examples/color_math.py) — models, conversions, distance and averaging
 
 ## Usage notes
 
