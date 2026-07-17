@@ -1,6 +1,7 @@
 import json
 import math
 import os.path
+import re
 import threading
 from typing import List, Optional, Dict, Tuple, Iterable
 
@@ -105,8 +106,19 @@ def _hits(automaton: SubstringMatcher, description: str) -> List[str]:
     return [hex_str for _, hex_str in automaton.iter(_norm(description))]
 
 
+def _specificity(name: str) -> float:
+    """Weight an exact match by how specific its name is: a longer, multi-word
+    name ("moss green") describes the intent more precisely than a short generic
+    one ("green"), so it should dominate the blend. Scoring by name length also
+    means a real match no longer washes out on long input, unlike comparing the
+    name against the whole sentence."""
+    return float(max(1, len(_norm(name))))
+
+
 def _exact_color_matches(color_dicts: List[Dict[str, str]], automaton: SubstringMatcher,
                          description: str, strategy: MatchStrategy) -> List[Tuple[HLSColor, float]]:
+    # word-boundary spotting already guarantees each hit is a real, whole-word
+    # occurrence, so matches are weighted by specificity rather than re-scored
     hits = _hits(automaton, description)
     out = []
     for color_dict in color_dicts:
@@ -114,9 +126,7 @@ def _exact_color_matches(color_dicts: List[Dict[str, str]], automaton: Substring
             if hex_str not in color_dict:
                 continue
             name = color_dict[hex_str]
-            s = fuzzy_match(name, description, strategy=strategy)
-            if s >= _MIN_SCORE:
-                out.append((HLSColor.from_hex_str(hex_str, name=name), s))
+            out.append((HLSColor.from_hex_str(hex_str, name=name), _specificity(name)))
     return out
 
 
@@ -163,8 +173,7 @@ def _object_matches(obj_dict: Dict[str, str], automaton: SubstringMatcher,
         if hex_s not in obj_dict:
             continue
         name = obj_dict[hex_s]
-        out.append((HLSColor.from_hex_str(hex_s, name=name),
-                    fuzzy_match(name, description, strategy=strategy)))
+        out.append((HLSColor.from_hex_str(hex_s, name=name), _specificity(name)))
     return out
 
 
@@ -290,7 +299,13 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict,
     description = description.lower().strip()
 
     def matches(key: str) -> bool:
-        return any(word.lower() in description for word in adjectives.get(key, []))
+        # match descriptor words on word boundaries so "light" fires on "light
+        # blue" but not on "delight", and multi-word cues still match verbatim
+        for word in adjectives.get(key, []):
+            w = word.lower().strip()
+            if w and re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", description):
+                return True
+        return False
 
     # Saturation adjustments with additive/subtractive control
     if matches("very_high_saturation"):

@@ -17,10 +17,17 @@ drop-in replacement.
 from typing import Dict, Iterator, Tuple
 
 
+def _is_boundary(char: str) -> bool:
+    """A word boundary is anything that is not part of a word — i.e. not a
+    letter or digit. Whitespace, punctuation and string edges all qualify."""
+    return not char.isalnum()
+
+
 class SubstringMatcher:
-    def __init__(self) -> None:
+    def __init__(self, word_boundaries: bool = True) -> None:
         self._words: Dict[str, str] = {}
         self._max_len = 0
+        self._word_boundaries = word_boundaries
 
     def add_word(self, key: str, value: str) -> None:
         """Register ``key`` (an already-normalised name) mapping to ``value``
@@ -44,12 +51,21 @@ class SubstringMatcher:
         ``end_index`` is the index of the match's last character, mirroring the
         old automaton's contract so callers that unpack ``(_, value)`` keep
         working.
+
+        With ``word_boundaries`` (the default), a key only matches when it is a
+        whole word or run of words — so "red" is found in "dark red" but not in
+        "shredded", and "green" is not found inside "evergreen". This is what a
+        color name should mean in a spoken phrase.
         """
         n = len(text)
         for start in range(n):
+            if self._word_boundaries and start > 0 and not _is_boundary(text[start - 1]):
+                continue
             end = min(start + self._max_len, n)
             for stop in range(start + 1, end + 1):
-                candidate = text[start:stop]
-                value = self._words.get(candidate)
+                if (self._word_boundaries and stop < n
+                        and not _is_boundary(text[stop])):
+                    continue
+                value = self._words.get(text[start:stop])
                 if value is not None:
                     yield stop - 1, value

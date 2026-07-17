@@ -49,6 +49,44 @@ class TestInstantiableMatcher(unittest.TestCase):
         self.assertEqual(len(pairs), len(set(pairs)))
 
 
+class TestWordBoundaryMatching(unittest.TestCase):
+    def test_color_name_not_matched_inside_word(self):
+        m = ColorMatcher("en", color_palettes=[{"#FF0000": "red", "#008000": "green"}])
+        self.assertEqual(m.match_colors("shredded evergreen"), [])
+
+    def test_color_name_matched_as_whole_word(self):
+        m = ColorMatcher("en", color_palettes=[{"#FF0000": "red"}])
+        self.assertEqual({c.name for c, _ in m.match_colors("the red lamp")}, {"red"})
+
+    def test_multiword_name_still_matches(self):
+        m = ColorMatcher("en", color_palettes=[{"#000080": "navy blue"}])
+        self.assertEqual({c.name for c, _ in m.match_colors("a navy blue car")}, {"navy blue"})
+
+    def test_modifier_boundary_no_false_trigger(self):
+        # "light" embedded in "flighty" must not lighten the color
+        base = color_from_description("red", "en", fuzzy=False)
+        embedded = color_from_description("flighty red", "en", fuzzy=False)
+        self.assertAlmostEqual(base.as_hls.l, embedded.as_hls.l, places=6)
+
+    def test_modifier_whole_word_still_fires(self):
+        base = color_from_description("red", "en", fuzzy=False)
+        light = color_from_description("light red", "en", fuzzy=False)
+        self.assertGreater(light.as_hls.l, base.as_hls.l)
+
+
+class TestSpecificityWeighting(unittest.TestCase):
+    def test_specific_name_dominates_blend(self):
+        # a specific compound name pulls the result away from the generic hue
+        moss = color_from_description("moss green", "en", fuzzy=False)
+        green = color_from_description("green", "en", fuzzy=False)
+        self.assertNotEqual(moss.hex_str, green.hex_str)
+
+    def test_long_input_still_resolves(self):
+        # specificity weighting does not collapse on long descriptions
+        c = color_from_description("please set the lamp to a nice red colour now", "en")
+        self.assertIsNotNone(c)
+
+
 class TestGamutPolicyParam(unittest.TestCase):
     def test_result_always_in_gamut(self):
         for policy in (GamutPolicy.CLAMP, GamutPolicy.MAP):
