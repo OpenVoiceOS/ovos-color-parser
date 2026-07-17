@@ -77,16 +77,34 @@ def lookup_name(color: Color, lang: str = "en",
     raise ValueError("Unnamed color")
 
 
+# Arabic short vowels and other tashkeel are optional diacritics: the same word
+# is written with or without them ("أَحْمَر" and "أحمر" are the same word). They
+# occupy dedicated Arabic-script code points that never appear in other scripts,
+# so removing them makes matching diacritic-insensitive without affecting any
+# other language. Tatweel (kashida) is a purely cosmetic letter-stretching
+# character and is dropped for the same reason.
+_ARABIC_DIACRITICS = re.compile(
+    "[ؐ-ًؚ-ٰٟۖ-ۜ۟-۪ۨ-ۭ࣓-ࣿـ]"
+)
+
+
+def _strip_arabic_diacritics(k: str) -> str:
+    return _ARABIC_DIACRITICS.sub("", k)
+
+
 def _norm(k):
     """
     Normalize a string by converting it to lowercase, replacing hyphens and underscores with spaces,
-    and stripping punctuation and whitespace characters.
+    stripping punctuation and whitespace, and removing Arabic diacritics so a word
+    matches whether or not it is written with tashkeel.
     """
+    k = _strip_arabic_diacritics(k)
     return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
 
 
 _DEFAULT_STRATEGY = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY
 _MIN_SCORE = 0.15  # discard weak name matches below this similarity
+_MIN_FUZZY_LEN = 3  # names shorter than this are matched exactly, never fuzzily
 
 
 def _build_automaton(color_dicts: Iterable[Dict[str, str]]) -> SubstringMatcher:
@@ -142,10 +160,16 @@ def _fuzzy_color_matches(color_dicts: List[Dict[str, str]], description: str,
     norm_desc = _norm(description)
     for color_dict in color_dicts:
         for hex_str, name in color_dict.items():
-            gate = fuzzy_match(_norm(name), norm_desc, strategy=MatchStrategy.TOKEN_SET_RATIO)
+            norm_name = _norm(name)
+            # very short names (e.g. the two-letter دم "blood") fuzzy-match almost
+            # any word that contains them; edit distance is meaningless at that
+            # length, and exact word-boundary spotting already covers them
+            if len(norm_name) < _MIN_FUZZY_LEN:
+                continue
+            gate = fuzzy_match(norm_name, norm_desc, strategy=MatchStrategy.TOKEN_SET_RATIO)
             if gate < 0.8:
                 continue
-            s = fuzzy_match(_norm(name), norm_desc, strategy=strategy)
+            s = fuzzy_match(norm_name, norm_desc, strategy=strategy)
             if s >= _MIN_SCORE:
                 try:
                     out.append((HLSColor.from_hex_str(hex_str, name=name), s))
@@ -296,13 +320,15 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict,
     if not adjectives:
         return color.as_rgb
 
-    description = description.lower().strip()
+    # strip diacritics so a vowelled modifier ("غَامِق") matches its bare
+    # descriptor entry, exactly as color names are matched
+    description = _strip_arabic_diacritics(description).lower().strip()
 
     def matches(key: str) -> bool:
         # match descriptor words on word boundaries so "light" fires on "light
         # blue" but not on "delight", and multi-word cues still match verbatim
         for word in adjectives.get(key, []):
-            w = word.lower().strip()
+            w = _strip_arabic_diacritics(word).lower().strip()
             if w and re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", description):
                 return True
         return False

@@ -244,10 +244,26 @@ class TestArabic(unittest.TestCase):
         self._assert_hue("بنفسجى", None)
         self._assert_hue("وردى", is_reddish)
 
-    def test_orthographic_variant_tashkeel(self):
-        # tashkeel (vowel marks) are not stripped by normalization, so an
-        # explicitly-vowelled spelling ships as its own entry.
-        self._assert_hue("أَحْمَر", is_reddish)
+    def test_tashkeel_is_ignored(self):
+        # tashkeel (vowel marks) are optional: a diacritized spelling must resolve
+        # to exactly the same color as its bare form, for every color word.
+        for bare, diac in [("أحمر", "أَحْمَر"), ("أزرق", "أَزْرَق"),
+                           ("أخضر", "أَخْضَر"), ("أصفر", "أَصْفَر"),
+                           ("بنفسجي", "بَنَفْسَجِيّ")]:
+            with self.subTest(word=bare):
+                b = color_from_description(bare, "ar")
+                d = color_from_description(diac, "ar")
+                self.assertIsNotNone(d, f"diacritized {diac!r} did not match")
+                self.assertEqual(b.hex_str, d.hex_str,
+                                 f"{diac!r} -> {d.hex_str} != {bare!r} -> {b.hex_str}")
+
+    def test_tashkeel_on_dialectal_and_modifiers(self):
+        # stripping applies everywhere: dialectal names and modifier phrases too
+        self._assert_hue("بَمْبِي", is_reddish)                 # vowelled Egyptian pink
+        base = color_from_description("أحمر", "ar")
+        dark = color_from_description("أَحْمَر غَامِق", "ar")   # fully vowelled "dark red"
+        self.assertIsNotNone(dark)
+        self.assertLess(dark.as_hls.l, base.as_hls.l)
 
     def test_object_colors(self):
         # prototypical objects imply their color
@@ -280,6 +296,14 @@ class TestArabic(unittest.TestCase):
     def test_adversarial_embedded_substring(self):
         # "بنيان" (building) contains "بني" (brown) but must not be read as a color
         self.assertIsNone(color_from_description("بنيان", "ar"))
+
+    def test_adversarial_short_word_no_fuzzy_collision(self):
+        # short color/object words must not fuzzy-match longer unrelated words:
+        # "قدم" (foot) and "مقدم" (presenter) both contain "دم" (blood)
+        self.assertIsNone(color_from_description("قدم", "ar"))
+        self.assertIsNone(color_from_description("مقدم", "ar"))
+        # the real two-letter word still resolves exactly
+        self.assertIsNotNone(color_from_description("دم", "ar"))
 
 
 if __name__ == "__main__":
