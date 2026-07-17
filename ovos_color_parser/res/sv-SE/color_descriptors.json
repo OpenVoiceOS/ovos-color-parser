@@ -1,0 +1,132 @@
+{
+  "very_high_saturation": [
+    "neon",
+    "mättad",
+    "intensiv",
+    "knallig",
+    "elektrisk",
+    "gräll",
+    "supermättad",
+    "starkt lysande"
+  ],
+  "high_saturation": [
+    "livfull",
+    "mättad",
+    "djup",
+    "stark",
+    "kraftig",
+    "klar",
+    "intensiv",
+    "ren"
+  ],
+  "low_saturation": [
+    "dov",
+    "urblekt",
+    "blek",
+    "dämpad",
+    "pastell",
+    "mild",
+    "diskret",
+    "matt"
+  ],
+  "very_low_saturation": [
+    "gråaktig",
+    "urtvättad",
+    "avmättad",
+    "färglös",
+    "neutral",
+    "blekt",
+    "monokrom",
+    "gråtonad"
+  ],
+  "very_high_brightness": [
+    "bländande",
+    "strålande",
+    "gnistrande",
+    "lysande",
+    "skinande",
+    "klart lysande"
+  ],
+  "high_brightness": [
+    "ljus",
+    "klar",
+    "lysande",
+    "solbelyst",
+    "blank",
+    "skinande"
+  ],
+  "low_brightness": [
+    "mörk",
+    "dunkel",
+    "dämpad",
+    "skum",
+    "matt",
+    "svag"
+  ],
+  "very_low_brightness": [
+    "mycket mörk",
+    "kolsvart",
+    "nattsvart",
+    "becksvart",
+    "djupt mörk",
+    "skuggig"
+  ],
+  "very_high_temperature": [
+    "brännhet",
+    "glödande",
+    "eldig",
+    "flammande",
+    "kokhet"
+  ],
+  "high_temperature": [
+    "varm",
+    "het",
+    "solig",
+    "gyllene",
+    "rostig"
+  ],
+  "low_temperature": [
+    "kall",
+    "sval",
+    "frisk",
+    "kylig",
+    "vinterlig"
+  ],
+  "very_low_temperature": [
+    "iskall",
+    "arktisk",
+    "frusen",
+    "polär",
+    "glacial"
+  ],
+  "very_high_opacity": [
+    "ogenomskinlig",
+    "tät",
+    "massiv",
+    "kompakt",
+    "solid"
+  ],
+  "high_opacity": [
+    "solid",
+    "tät",
+    "ogenomskinlig",
+    "kraftig",
+    "fyllig"
+  ],
+  "low_opacity": [
+    "genomskinlig",
+    "transparent",
+    "klar",
+    "tunn",
+    "luftig",
+    "halvgenomskinlig"
+  ],
+  "very_low_opacity": [
+    "genomskinlig",
+    "spöklik",
+    "eterisk",
+    "knappt synlig",
+    "dimmig",
+    "slöjlik"
+  ]
+}
