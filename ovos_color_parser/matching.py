@@ -4,11 +4,11 @@ import os.path
 import threading
 from typing import List, Optional, Dict, Tuple, Iterable
 
-import ahocorasick
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
 from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
                                     GamutPolicy, fit_to_gamut, srgb8_distance)
+from ovos_color_parser.match import SubstringMatcher
 from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
 
 
@@ -93,8 +93,8 @@ def _norm(k):
 
 
 class ColorMatcher:
-    _color_automatons: Dict[str, ahocorasick.Automaton] = {}
-    _object_automatons: Dict[str, ahocorasick.Automaton] = {}
+    _color_automatons: Dict[str, SubstringMatcher] = {}
+    _object_automatons: Dict[str, SubstringMatcher] = {}
     __lock = threading.Lock()
 
     @staticmethod
@@ -109,11 +109,11 @@ class ColorMatcher:
             return json.load(f)
 
     @classmethod
-    def load_color_automaton(cls, lang: str) -> ahocorasick.Automaton:
+    def load_color_automaton(cls, lang: str) -> SubstringMatcher:
         with cls.__lock:
             if lang in cls._color_automatons:
                 return cls._color_automatons[lang]
-            automaton = ahocorasick.Automaton()
+            automaton = SubstringMatcher()
             for colorlist in _load_color_json(lang):
                 for hex_str, name in colorlist.items():
                     automaton.add_word(_norm(name), hex_str)
@@ -123,11 +123,11 @@ class ColorMatcher:
         return automaton
 
     @classmethod
-    def load_object_automaton(cls, lang: str) -> ahocorasick.Automaton:
+    def load_object_automaton(cls, lang: str) -> SubstringMatcher:
         with cls.__lock:
             if lang in cls._object_automatons:
                 return cls._object_automatons[lang]
-            automaton = ahocorasick.Automaton()
+            automaton = SubstringMatcher()
             for hex_str, name in cls._get_object_colors(lang).items():
                 automaton.add_word(_norm(name), hex_str)
             if len(automaton):

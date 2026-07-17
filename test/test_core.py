@@ -125,5 +125,50 @@ class TestHueRangePalette(unittest.TestCase):
         self.assertEqual(len(HueRange(120, 120).sample().colors), 1)
 
 
+class TestSubstringMatcher(unittest.TestCase):
+    def _matcher(self, words):
+        from ovos_color_parser.match import SubstringMatcher
+        m = SubstringMatcher()
+        for k, v in words.items():
+            m.add_word(k, v)
+        m.make_automaton()
+        return m
+
+    def test_finds_multiword_and_nested_names(self):
+        m = self._matcher({"green": "#0F0", "moss green": "#8A9"})
+        found = {v for _, v in m.iter("make it moss green please")}
+        self.assertEqual(found, {"#0F0", "#8A9"})
+
+    def test_no_match(self):
+        m = self._matcher({"green": "#0F0"})
+        self.assertEqual(list(m.iter("bright red")), [])
+
+    def test_end_index_points_at_last_char(self):
+        m = self._matcher({"red": "#F00"})
+        text = "dark red"
+        matches = list(m.iter(text))
+        self.assertEqual(len(matches), 1)
+        end, _ = matches[0]
+        self.assertEqual(text[end], "d")
+
+    def test_empty_matcher_len_and_iter(self):
+        m = self._matcher({})
+        self.assertEqual(len(m), 0)
+        self.assertEqual(list(m.iter("anything")), [])
+
+    def test_ignores_empty_key(self):
+        m = self._matcher({"": "#000", "red": "#F00"})
+        self.assertEqual(len(m), 1)
+
+
+class TestParseSmoke(unittest.TestCase):
+    def test_known_multiword_color_parses(self):
+        from ovos_color_parser import color_from_description
+        c = color_from_description("moss green", "en")
+        self.assertIsNotNone(c)
+        # greenish hue
+        self.assertTrue(60 <= c.as_hls.h <= 180, c.as_hls.h)
+
+
 if __name__ == "__main__":
     unittest.main()
