@@ -1,3 +1,2 @@
-colorspacious
 pyahocorasick
 ovos-utils>=0.0.38

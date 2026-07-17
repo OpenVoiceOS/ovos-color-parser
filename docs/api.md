@@ -53,7 +53,7 @@ Bundled vocabularies: `EnglishColorTerms`, `NewtonSpectralColorTerms`, `ISCCNBSS
 
 ### `color_distance(color_a, color_b) -> float`
 
-Perceptual distance (CIECAM02-UCS deltaE via `colorspacious`). Smaller is more similar.
+Perceptual distance (CIEDE2000 over CIE L\*a\*b\*). Smaller is more similar.
 
 ### `closest_color(color, color_opts) -> Color`
 

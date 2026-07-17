@@ -11,6 +11,7 @@ nothing about language, vocabularies or parsing.
 - :mod:`ovos_color_parser.core.gamut` — deciding what to do when a computed
   color falls outside the sRGB gamut (``clamp`` / ``map`` / ``reject``).
 """
+from ovos_color_parser.core.distance import srgb8_to_lab, srgb8_distance, delta_e_cie2000
 from ovos_color_parser.core.gamut import GamutPolicy, in_gamut, fit_to_gamut
 from ovos_color_parser.core.space import (
     LinearRGB,
@@ -27,4 +28,7 @@ __all__ = [
     "GamutPolicy",
     "in_gamut",
     "fit_to_gamut",
+    "srgb8_to_lab",
+    "srgb8_distance",
+    "delta_e_cie2000",
 ]

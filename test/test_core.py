@@ -1,7 +1,8 @@
 import unittest
 
 from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
-                                    GamutPolicy, in_gamut, fit_to_gamut, LinearRGB)
+                                    GamutPolicy, in_gamut, fit_to_gamut, LinearRGB,
+                                    srgb8_distance, delta_e_cie2000)
 from ovos_color_parser.models import HueRange, HSVColorPalette, sRGBAColorPalette, HLSColorPalette
 from ovos_color_parser import average_colors, sRGBAColor, HLSColor
 
@@ -67,6 +68,27 @@ class TestGamut(unittest.TestCase):
     def test_in_gamut_input_not_flagged(self):
         _, oog = fit_to_gamut(srgb8_to_linear(10, 20, 30))
         self.assertFalse(oog)
+
+
+class TestPerceptualDistance(unittest.TestCase):
+    def test_ciede2000_reference_data(self):
+        # Sharma, Wu & Dalal (2005) verification pairs
+        cases = [
+            ((50.0, 2.6772, -79.7751), (50.0, 0.0, -82.7485), 2.0425),
+            ((50.0, 2.5, 0.0), (73.0, 25.0, -18.0), 27.1492),
+            ((60.2574, -34.0099, 36.2677), (60.4626, -34.1751, 39.4387), 1.2644),
+            ((22.7233, 20.0904, -46.694), (23.0331, 14.973, -42.5619), 2.0373),
+        ]
+        for lab1, lab2, expected in cases:
+            self.assertAlmostEqual(delta_e_cie2000(lab1, lab2), expected, places=2)
+
+    def test_identical_is_zero(self):
+        self.assertEqual(srgb8_distance((10, 20, 30), (10, 20, 30)), 0.0)
+
+    def test_ordering(self):
+        # red is nearer to orange-ish than to blue
+        self.assertLess(srgb8_distance((255, 0, 0), (200, 30, 30)),
+                        srgb8_distance((255, 0, 0), (0, 0, 255)))
 
 
 class TestAverageColorsLinear(unittest.TestCase):

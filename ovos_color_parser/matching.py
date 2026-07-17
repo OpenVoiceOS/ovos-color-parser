@@ -5,11 +5,10 @@ import threading
 from typing import List, Optional, Dict, Tuple, Iterable
 
 import ahocorasick
-from colorspacious import deltaE
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
 from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
-                                    GamutPolicy, fit_to_gamut)
+                                    GamutPolicy, fit_to_gamut, srgb8_distance)
 from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
 
 
@@ -18,9 +17,8 @@ def color_distance(color_a: Color, color_b: Color) -> float:
         color_a = color_a.as_rgb
     if not isinstance(color_b, sRGBAColor):
         color_b = color_b.as_rgb
-    return float(deltaE([color_a.r, color_a.g, color_a.b],
-                        [color_b.r, color_b.g, color_b.b],
-                        input_space="sRGB255"))
+    return srgb8_distance((color_a.r, color_a.g, color_a.b),
+                          (color_b.r, color_b.g, color_b.b))
 
 
 def closest_color(color: Color, color_opts: List[Color]) -> Color:
