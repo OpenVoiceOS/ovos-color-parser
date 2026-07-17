@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.6.0a1) (2026-07-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.5.0a1...0.6.0a1)
+
+**Merged pull requests:**
+
+- feat: leaner color core — linear-light conversions, gamut policy, first-class namespaces [\#67](https://github.com/OpenVoiceOS/ovos-color-parser/pull/67) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.5.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.5.0a1) (2026-07-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.4.0a5...0.5.0a1)
