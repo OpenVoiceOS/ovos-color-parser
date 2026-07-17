@@ -10,6 +10,8 @@ from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_line
                                     GamutPolicy, fit_to_gamut, srgb8_distance)
 from ovos_color_parser.match import SubstringMatcher
 from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
+from ovos_color_parser.vocab import (iter_color_dicts, load_palettes, palette_names)
+from ovos_color_parser.vocab.loader import _resolve_lang_dir
 
 
 def color_distance(color_a: Color, color_b: Color) -> float:
@@ -27,60 +29,50 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
     return min(scores, key=lambda k: scores[k])
 
 
-_RES_ROOT = f"{os.path.dirname(__file__)}/res"
-
-
-def _resolve_lang_dir(lang: str) -> Optional[str]:
-    """Resolve a requested language tag to an existing ``res/<locale>`` directory.
-
-    The shipped resources are stored under full BCP-47 locale folders
-    (``en-US``, ``de-DE``, ...). Instead of blindly stripping the region,
-    pick the best matching directory:
-
-    1. exact case-insensitive full-locale match (``en-us`` -> ``en-US``),
-    2. same primary language subtag (``en`` / ``en-GB`` -> ``en-US``).
-
-    Returns the absolute directory path, or ``None`` if nothing matches.
-    """
-    if not lang:
-        return None
-    available = [d for d in os.listdir(_RES_ROOT)
-                 if os.path.isdir(f"{_RES_ROOT}/{d}")]
-    by_lower = {d.lower(): d for d in available}
-
-    requested = lang.lower().replace("_", "-")
-    # 1) exact full-locale match
-    if requested in by_lower:
-        return f"{_RES_ROOT}/{by_lower[requested]}"
-    # 2) same primary subtag (prefer the bare-subtag dir if present,
-    #    then any locale sharing that subtag)
-    primary = requested.split("-")[0]
-    if primary in by_lower:
-        return f"{_RES_ROOT}/{by_lower[primary]}"
-    for d in sorted(available):
-        if d.lower().split("-")[0] == primary:
-            return f"{_RES_ROOT}/{d}"
-    return None
-
-
 def _load_color_json(lang: str) -> Iterable[Dict[str, str]]:
-    p = _resolve_lang_dir(lang)
-    if not p:
-        return
-    for wordlist in os.listdir(p):
-        if not wordlist.endswith(".json") or wordlist == "color_descriptors.json":
-            continue
-        with open(f"{p}/{wordlist}") as f:
-            words = json.load(f)
-            yield words
+    """Locale color dicts, cached. Delegates to the vocab loader (kept as a thin
+    wrapper for backward compatibility)."""
+    return iter_color_dicts(lang)
 
 
-def lookup_name(color: Color, lang: str = "en") -> str:
+def lookup_name(color: Color, lang: str = "en",
+                namespace: Optional[str] = None, nearest: bool = False) -> str:
+    """Name ``color`` from the known vocabularies.
+
+    - ``namespace`` restricts the lookup to a single palette (e.g. ``"webcolors"``,
+      ``"RAL_classic"``) instead of searching all of them.
+    - Resolution order is deterministic (common palettes before niche catalogs),
+      so the same hex always yields the same name.
+    - With ``nearest=True`` an exact-miss falls back to the perceptually closest
+      named color in scope instead of raising.
+
+    Raises ``ValueError`` if nothing matches and ``nearest`` is False.
+    """
     if not isinstance(color, sRGBAColor):
         color = color.as_rgb
-    for colorlist in _load_color_json(lang):
+    palettes = load_palettes(lang)
+    if namespace is not None:
+        if namespace not in palettes:
+            raise ValueError(f"unknown color namespace: {namespace!r}. "
+                             f"available: {palette_names(lang)}")
+        palettes = {namespace: palettes[namespace]}
+
+    for colorlist in palettes.values():
         if color.hex_str in colorlist:
             return colorlist[color.hex_str]
+
+    if nearest:
+        best_name, best_dist = None, None
+        for colorlist in palettes.values():
+            for hex_str, name in colorlist.items():
+                try:
+                    d = color_distance(color, sRGBAColor.from_hex_str(hex_str))
+                except ValueError:
+                    continue
+                if best_dist is None or d < best_dist:
+                    best_name, best_dist = name, d
+        if best_name is not None:
+            return best_name
     raise ValueError("Unnamed color")
 
 
