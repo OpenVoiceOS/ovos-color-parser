@@ -4,17 +4,20 @@ All public names are importable from `ovos_color_parser`.
 
 ## Parsing
 
-### `color_from_description(description, lang="en", strategy=..., cast_to_palette=False, fuzzy=True) -> Optional[sRGBAColor]`
+### `color_from_description(description, lang="en", strategy=..., cast_to_palette=False, fuzzy=True, gamut=GamutPolicy.CLAMP) -> Optional[sRGBAColor]`
 
 Parse a natural-language color description.
 
 - Matches the description against the language's bundled color wordlists and object-color list.
-- Averages all matched colors, weighted by match confidence (see `average_colors`).
+- Averages all matched colors in linear light, weighted by match confidence (see `average_colors`).
 - Applies modifier keywords from the language's descriptor list: saturation ("vivid", "muted"),
   brightness ("light", "dark"), temperature ("warm", "cool") and opacity ("opaque", "transparent" —
   applied to the alpha channel).
 - `cast_to_palette=True` returns the matched candidate closest to the averaged color instead of the
   average itself, so the result is always a known, named color.
+- `gamut` chooses how a computed color that leaves the sRGB gamut is resolved:
+  `GamutPolicy.CLAMP` (per-channel, default), `GamutPolicy.MAP` (hue-preserving), or
+  `GamutPolicy.REJECT`.
 - Returns `None` when nothing matches (including unsupported languages).
 
 ```python
@@ -28,9 +31,27 @@ True
 
 Return every color matched by the description as a palette (empty palette when nothing matches).
 
-### `lookup_name(color, lang="en") -> str`
+### `lookup_name(color, lang="en", namespace=None, nearest=False) -> str`
 
-Return the name of `color` in the language's wordlists. Raises `ValueError` for unnamed colors.
+Return the name of `color` from the known vocabularies.
+
+- `namespace` restricts the lookup to a single palette (e.g. `"webcolors"`, `"crayola"`,
+  `"RAL_classic"`); see `palette_names(lang)` for the available namespaces.
+- Resolution is deterministic (common palettes before niche catalogs).
+- `nearest=True` falls back to the perceptually closest named color in scope instead of raising.
+- Raises `ValueError` for an unnamed color (exact miss with `nearest=False`) or an unknown namespace.
+
+### Namespaces (`ovos_color_parser.vocab`)
+
+`palette_names(lang)`, `load_palettes(lang)`, `load_locale_palettes(lang)` and
+`load_shared_palettes()` expose the color palettes as named, cached namespaces. The
+language-neutral `webcolors` palette is available as a base namespace for every locale.
+
+### `ColorMatcher(lang="en", color_palettes=None, object_colors=None)`
+
+Instantiable name spotter. Use the class methods for the cached global path, or construct an
+instance to match against a fixed language or injected custom vocabularies
+(`match_colors(description, fuzzy=False)`, `match_objects(description)`).
 
 ## Color models (`ovos_color_parser.models`)
 

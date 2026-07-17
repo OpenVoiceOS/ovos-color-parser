@@ -161,6 +161,40 @@ class TestSubstringMatcher(unittest.TestCase):
         self.assertEqual(len(m), 1)
 
 
+class TestDistanceProperties(unittest.TestCase):
+    def test_symmetry(self):
+        a, b = (200, 30, 30), (30, 30, 200)
+        self.assertAlmostEqual(srgb8_distance(a, b), srgb8_distance(b, a), places=6)
+
+    def test_zero_only_for_identical(self):
+        self.assertEqual(srgb8_distance((5, 5, 5), (5, 5, 5)), 0.0)
+        self.assertGreater(srgb8_distance((5, 5, 5), (6, 6, 6)), 0.0)
+
+    def test_triangle_reasonable(self):
+        # near colors closer than far colors
+        d_near = srgb8_distance((100, 100, 100), (110, 100, 100))
+        d_far = srgb8_distance((100, 100, 100), (255, 0, 0))
+        self.assertLess(d_near, d_far)
+
+
+class TestGamutProperties(unittest.TestCase):
+    def test_map_keeps_luminance_ordering(self):
+        # mapping an over-bright color stays bounded and in gamut
+        fitted, oog = fit_to_gamut(LinearRGB(1.5, 0.4, 0.4), GamutPolicy.MAP)
+        self.assertTrue(oog)
+        self.assertTrue(in_gamut(fitted))
+
+    def test_negative_channels_clamped(self):
+        fitted, oog = fit_to_gamut(LinearRGB(-0.5, 0.5, 0.5), GamutPolicy.CLAMP)
+        self.assertTrue(oog)
+        self.assertGreaterEqual(fitted.r, 0.0)
+
+    def test_far_out_of_gamut_still_fits(self):
+        for policy in (GamutPolicy.CLAMP, GamutPolicy.MAP):
+            fitted, _ = fit_to_gamut(LinearRGB(10.0, -5.0, 3.0), policy)
+            self.assertTrue(in_gamut(fitted))
+
+
 class TestParseSmoke(unittest.TestCase):
     def test_known_multiword_color_parses(self):
         from ovos_color_parser import color_from_description

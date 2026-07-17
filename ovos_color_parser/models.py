@@ -9,6 +9,10 @@ from typing import List, Optional, Union
 #  - HLS  <- all color operations are performed in this space
 #  - Spectral (wave length)
 
+# Approximate bounds of the human-visible spectrum, in nanometers.
+VISIBLE_MIN_NM = 380
+VISIBLE_MAX_NM = 750
+
 
 @dataclass
 class sRGBAColor:
@@ -167,6 +171,18 @@ class SpectralColor:
     @property
     def wavelen(self) -> int:
         return int((self.wavelen_nm_max + self.wavelen_nm_min) / 2)
+
+    @property
+    def is_visible(self) -> bool:
+        """Whether the representative wavelength falls within human vision
+        (~380-750 nm).
+
+        Infrared, ultraviolet, radio, X-ray and gamma bands have no true color;
+        their ``as_rgb`` is a stand-in (black for sub-visible energy, white for
+        super-visible), so callers that care should check this first rather than
+        trusting the placeholder RGB. The test uses the same representative
+        ``wavelen`` that ``as_rgb`` resolves, so the two always agree."""
+        return VISIBLE_MIN_NM <= self.wavelen <= VISIBLE_MAX_NM
 
     @staticmethod
     def _wavelength_to_hue(wavelen: int, palette: 'SpectralColorPalette') -> int:

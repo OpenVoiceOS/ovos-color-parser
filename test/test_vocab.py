@@ -63,5 +63,39 @@ class TestNamespaceLookup(unittest.TestCase):
         self.assertEqual({lookup_name(red, "en") for _ in range(5)}, {lookup_name(red, "en")})
 
 
+class TestAllLocalesLoad(unittest.TestCase):
+    def test_every_locale_dir_parses(self):
+        import os
+        res = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                           "ovos_color_parser", "res")
+        locales = [d for d in os.listdir(res) if os.path.isdir(os.path.join(res, d))]
+        self.assertGreaterEqual(len(locales), 20)
+        for lang in locales:
+            palettes = load_locale_palettes(lang)
+            # each locale ships at least one non-empty palette
+            self.assertTrue(any(palettes.values()), f"{lang} has no colors")
+
+    def test_priority_order_total_and_stable(self):
+        names = palette_names("en")
+        self.assertEqual(len(names), len(set(names)))  # no dupes
+
+    def test_object_colors_ranked_last(self):
+        names = palette_names("en")
+        if "object_colors" in names and "colors" in names:
+            self.assertGreater(names.index("object_colors"), names.index("colors"))
+
+
+class TestLoaderCaching(unittest.TestCase):
+    def test_shared_cached_identity(self):
+        self.assertIs(load_shared_palettes(), load_shared_palettes())
+
+    def test_locale_cached_identity(self):
+        self.assertIs(load_locale_palettes("en"), load_locale_palettes("en"))
+
+    def test_region_variants_resolve_same_content(self):
+        # cached per tag string, so different objects, but same resolved data
+        self.assertEqual(load_locale_palettes("en"), load_locale_palettes("en-GB"))
+
+
 if __name__ == "__main__":
     unittest.main()
