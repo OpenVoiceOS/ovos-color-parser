@@ -8,8 +8,8 @@ color math.
 from ovos_color_parser import color_from_description
 
 c = color_from_description("dark red", lang="en")
-print(c.hex_str)   # "#371013"
-print(c.as_hls)    # HLSColor(h=352, l=0.145..., s=0.522..., ...)
+print(c.hex_str)   # "#3B1315"
+print(c.as_hls)    # HLSColor(h=357, l=0.153..., s=0.513..., ...)
 ```
 
 It ships as part of the OpenVoiceOS voice stack, but it is a standalone library first: nothing
@@ -31,10 +31,10 @@ from ovos_color_parser import color_from_description, lookup_name, sRGBAColor
 
 # text -> color
 c = color_from_description("warm mustard yellow", lang="en")
-print(c.hex_str, (c.r, c.g, c.b))     # #F6BC26 (246, 188, 38)
+print(c.hex_str, (c.r, c.g, c.b))     # #FFDA3E (255, 218, 62)
 
 # color -> text (any supported language)
-print(lookup_name(sRGBAColor.from_hex_str("#1E90FF"), lang="pt"))  # "Dodger Azul"
+print(lookup_name(sRGBAColor.from_hex_str("#1E90FF"), lang="pt"))  # "Azul furtivo"
 
 # nothing matches -> None
 print(color_from_description("qzxwv", lang="en"))  # None
@@ -45,13 +45,18 @@ print(color_from_description("qzxwv", lang="en"))  # None
 - **Color extraction** — `color_from_description("light blue", lang="fr")` matches bundled color
   wordlists (web colors, xkcd survey, crayola, RAL, Pantone, ISCC-NBS, traditional Japanese colors, ...)
   and object colors ("carrot", "banana"), then applies modifiers such as *light/dark*, *vivid/muted*,
-  *warm/cool* and *transparent/opaque*.
-- **Color naming** — `lookup_name(color, lang)` returns the name of a known color.
+  *warm/cool* and *transparent/opaque*. Names are matched on word boundaries and weighted by
+  specificity, so "moss green" outweighs a bare "green" and "green" is never matched inside "evergreen".
+- **Color naming and namespaces** — `lookup_name(color, lang)` returns a color's name. Every wordlist
+  is an addressable namespace, so you can ask for the name in a specific palette
+  (`namespace="RAL_classic"`) or fall back to the perceptually nearest named color (`nearest=True`).
 - **Color models** — `sRGBAColor`, `HLSColor`, `HSVColor` and `SpectralColor` (wavelength) dataclasses
-  with conversions, stable hex round-trips and validation.
-- **Utilities** — perceptual color distance (CIECAM02 deltaE), weighted color averaging with circular
-  hue mean, Kelvin color temperature to RGB, CMYK conversion, contrasting black/white text color and
-  hex validation.
+  with conversions, stable hex round-trips and validation. `SpectralColor.is_visible` separates real
+  colors from infrared, ultraviolet and beyond.
+- **Gamut handling** — choose how a computed color that leaves the sRGB gamut is resolved: clamp per
+  channel, map towards grey while preserving hue, or reject (`gamut=GamutPolicy.MAP`).
+- **Utilities** — perceptual color distance (CIEDE2000), linear-light color averaging, Kelvin color
+  temperature to RGB, CMYK conversion, contrasting black/white text color and hex validation.
 
 ## Use it anywhere
 
@@ -69,7 +74,7 @@ from ovos_color_parser import color_from_description
 text = "Paint the fence dark forest green and the door navy blue"
 for phrase in ("dark forest green", "navy blue"):
     c = color_from_description(phrase, lang="en", fuzzy=False)
-    print(phrase, "->", c.hex_str)   # dark forest green -> #020C05 ; navy blue -> #0B32B4
+    print(phrase, "->", c.hex_str)   # dark forest green -> #162914 ; navy blue -> #0F43BE
 ```
 
 Full sliding-window extractor with span offsets: [examples/ner_colors.py](examples/ner_colors.py).
@@ -95,7 +100,7 @@ from ovos_color_parser import color_from_description
 
 theme = {var: color_from_description(desc, lang="en").hex_str.lower()
          for var, desc in {"--accent": "vivid teal", "--bg": "very dark blue"}.items()}
-print(theme)   # {'--accent': '#00d0cc', '--bg': '#070d24'}
+print(theme)   # {'--accent': '#38bfc4', '--bg': '#121a34'}
 ```
 
 CSS variables, NeoPixel/WLED tuples and Kelvin white-balance in
@@ -149,18 +154,18 @@ support — is in [docs/languages.md](docs/languages.md).
 ## Usage notes
 
 Color names are ambiguous — the same name can map to several hex values across wordlists. When
-several entries match, the parser averages them, weighted by match confidence. To force a known,
-named color from the matched candidates instead:
+several entries match, the parser blends them in linear light, weighted by match specificity. To
+force a known, named color from the matched candidates instead:
 
 ```python
 color = color_from_description("red", lang="en", cast_to_palette=True)
-print(color.name)  # a named wordlist color, e.g. "Fire engine red"
+print(color.name)  # a named wordlist color, e.g. "Dusty Red"
 ```
 
 When nothing matches, `color_from_description` returns `None`.
 
 Descriptions of [impossible colors](https://en.wikipedia.org/wiki/Impossible_color)
-("reddish green") still produce an output — the parser averages whatever it matches, which may not
+("reddish green") still produce an output — the parser blends whatever it matches, which may not
 be meaningful.
 
 Runnable scripts live in [examples/](examples/) and the full API reference in

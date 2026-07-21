@@ -1,0 +1,127 @@
+{
+  "very_high_saturation": [
+    "neoon",
+    "küllastunud",
+    "intensiivne",
+    "kriiskav",
+    "elektriline",
+    "karjuv",
+    "üleküllastunud"
+  ],
+  "high_saturation": [
+    "elav",
+    "täidlane",
+    "sügav",
+    "tugev",
+    "võimas",
+    "ere",
+    "intensiivne",
+    "puhas"
+  ],
+  "low_saturation": [
+    "tuhm",
+    "tuhmunud",
+    "kahvatu",
+    "summutatud",
+    "pastelne",
+    "pehme",
+    "tagasihoidlik",
+    "mattjas"
+  ],
+  "very_low_saturation": [
+    "hallikas",
+    "pleekinud",
+    "küllastamata",
+    "värvitu",
+    "neutraalne",
+    "luitunud",
+    "ühevärviline"
+  ],
+  "very_high_brightness": [
+    "pimestav",
+    "särav",
+    "sätendav",
+    "hõõguv",
+    "kiirgav"
+  ],
+  "high_brightness": [
+    "hele",
+    "ere",
+    "särav",
+    "päikeseline",
+    "läikiv",
+    "kiirgav"
+  ],
+  "low_brightness": [
+    "tume",
+    "hämar",
+    "summutatud",
+    "sünge",
+    "tuhm",
+    "nõrk"
+  ],
+  "very_low_brightness": [
+    "väga tume",
+    "süsimust",
+    "pigimust",
+    "sügavalt tume",
+    "varjuline"
+  ],
+  "very_high_temperature": [
+    "kõrvetav",
+    "hõõguv",
+    "tuline",
+    "leegitsev",
+    "keev"
+  ],
+  "high_temperature": [
+    "soe",
+    "kuum",
+    "päikeseline",
+    "kuldne",
+    "roostene"
+  ],
+  "low_temperature": [
+    "külm",
+    "jahe",
+    "värske",
+    "karge",
+    "talvine"
+  ],
+  "very_low_temperature": [
+    "jäine",
+    "arktiline",
+    "külmunud",
+    "polaarne",
+    "jäätav"
+  ],
+  "very_high_opacity": [
+    "läbipaistmatu",
+    "tihe",
+    "massiivne",
+    "kompaktne",
+    "kindel"
+  ],
+  "high_opacity": [
+    "kindel",
+    "tihe",
+    "läbipaistmatu",
+    "tugev",
+    "täidlane"
+  ],
+  "low_opacity": [
+    "läbipaistev",
+    "poolläbipaistev",
+    "selge",
+    "õhuke",
+    "õhuline"
+  ],
+  "very_low_opacity": [
+    "läbikumav",
+    "kummituslik",
+    "eeterlik",
+    "vaevu nähtav",
+    "udune",
+    "loorjas"
+  ]
+}

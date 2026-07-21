@@ -1,14 +1,18 @@
 import json
 import math
 import os.path
+import re
 import threading
 from typing import List, Optional, Dict, Tuple, Iterable
 
-import ahocorasick
-from colorspacious import deltaE
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
+from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
+                                    GamutPolicy, fit_to_gamut, srgb8_distance)
+from ovos_color_parser.match import SubstringMatcher
 from ovos_color_parser.models import Color, sRGBAColor, HLSColor, sRGBAColorPalette
+from ovos_color_parser.vocab import (iter_color_dicts, load_palettes, palette_names)
+from ovos_color_parser.vocab.loader import _resolve_lang_dir
 
 
 def color_distance(color_a: Color, color_b: Color) -> float:
@@ -16,9 +20,8 @@ def color_distance(color_a: Color, color_b: Color) -> float:
         color_a = color_a.as_rgb
     if not isinstance(color_b, sRGBAColor):
         color_b = color_b.as_rgb
-    return float(deltaE([color_a.r, color_a.g, color_a.b],
-                        [color_b.r, color_b.g, color_b.b],
-                        input_space="sRGB255"))
+    return srgb8_distance((color_a.r, color_a.g, color_a.b),
+                          (color_b.r, color_b.g, color_b.b))
 
 
 def closest_color(color: Color, color_opts: List[Color]) -> Color:
@@ -27,75 +30,219 @@ def closest_color(color: Color, color_opts: List[Color]) -> Color:
     return min(scores, key=lambda k: scores[k])
 
 
-_RES_ROOT = f"{os.path.dirname(__file__)}/res"
-
-
-def _resolve_lang_dir(lang: str) -> Optional[str]:
-    """Resolve a requested language tag to an existing ``res/<locale>`` directory.
-
-    The shipped resources are stored under full BCP-47 locale folders
-    (``en-US``, ``de-DE``, ...). Instead of blindly stripping the region,
-    pick the best matching directory:
-
-    1. exact case-insensitive full-locale match (``en-us`` -> ``en-US``),
-    2. same primary language subtag (``en`` / ``en-GB`` -> ``en-US``).
-
-    Returns the absolute directory path, or ``None`` if nothing matches.
-    """
-    if not lang:
-        return None
-    available = [d for d in os.listdir(_RES_ROOT)
-                 if os.path.isdir(f"{_RES_ROOT}/{d}")]
-    by_lower = {d.lower(): d for d in available}
-
-    requested = lang.lower().replace("_", "-")
-    # 1) exact full-locale match
-    if requested in by_lower:
-        return f"{_RES_ROOT}/{by_lower[requested]}"
-    # 2) same primary subtag (prefer the bare-subtag dir if present,
-    #    then any locale sharing that subtag)
-    primary = requested.split("-")[0]
-    if primary in by_lower:
-        return f"{_RES_ROOT}/{by_lower[primary]}"
-    for d in sorted(available):
-        if d.lower().split("-")[0] == primary:
-            return f"{_RES_ROOT}/{d}"
-    return None
-
-
 def _load_color_json(lang: str) -> Iterable[Dict[str, str]]:
-    p = _resolve_lang_dir(lang)
-    if not p:
-        return
-    for wordlist in os.listdir(p):
-        if not wordlist.endswith(".json") or wordlist == "color_descriptors.json":
-            continue
-        with open(f"{p}/{wordlist}") as f:
-            words = json.load(f)
-            yield words
+    """Locale color dicts, cached. Delegates to the vocab loader (kept as a thin
+    wrapper for backward compatibility)."""
+    return iter_color_dicts(lang)
 
 
-def lookup_name(color: Color, lang: str = "en") -> str:
+def lookup_name(color: Color, lang: str = "en",
+                namespace: Optional[str] = None, nearest: bool = False) -> str:
+    """Name ``color`` from the known vocabularies.
+
+    - ``namespace`` restricts the lookup to a single palette (e.g. ``"webcolors"``,
+      ``"RAL_classic"``) instead of searching all of them.
+    - Resolution order is deterministic (common palettes before niche catalogs),
+      so the same hex always yields the same name.
+    - With ``nearest=True`` an exact-miss falls back to the perceptually closest
+      named color in scope instead of raising.
+
+    Raises ``ValueError`` if nothing matches and ``nearest`` is False.
+    """
     if not isinstance(color, sRGBAColor):
         color = color.as_rgb
-    for colorlist in _load_color_json(lang):
+    palettes = load_palettes(lang)
+    if namespace is not None:
+        if namespace not in palettes:
+            raise ValueError(f"unknown color namespace: {namespace!r}. "
+                             f"available: {palette_names(lang)}")
+        palettes = {namespace: palettes[namespace]}
+
+    for colorlist in palettes.values():
         if color.hex_str in colorlist:
             return colorlist[color.hex_str]
+
+    if nearest:
+        best_name, best_dist = None, None
+        for colorlist in palettes.values():
+            for hex_str, name in colorlist.items():
+                try:
+                    d = color_distance(color, sRGBAColor.from_hex_str(hex_str))
+                except ValueError:
+                    continue
+                if best_dist is None or d < best_dist:
+                    best_name, best_dist = name, d
+        if best_name is not None:
+            return best_name
     raise ValueError("Unnamed color")
+
+
+# Arabic short vowels and other tashkeel are optional diacritics: the same word
+# is written with or without them ("أَحْمَر" and "أحمر" are the same word). They
+# occupy dedicated Arabic-script code points that never appear in other scripts,
+# so removing them makes matching diacritic-insensitive without affecting any
+# other language. Tatweel (kashida) is a purely cosmetic letter-stretching
+# character and is dropped for the same reason.
+_ARABIC_DIACRITICS = re.compile(
+    "[ؐ-ًؚ-ٰٟۖ-ۜ۟-۪ۨ-ۭ࣓-ࣿـ]"
+)
+
+
+def _strip_arabic_diacritics(k: str) -> str:
+    return _ARABIC_DIACRITICS.sub("", k)
 
 
 def _norm(k):
     """
     Normalize a string by converting it to lowercase, replacing hyphens and underscores with spaces,
-    and stripping punctuation and whitespace characters.
+    stripping punctuation and whitespace, and removing Arabic diacritics so a word
+    matches whether or not it is written with tashkeel.
     """
+    k = _strip_arabic_diacritics(k)
     return k.lower().replace("-", " ").replace("_", " ").strip(" ,.!\n:;")
 
 
+_DEFAULT_STRATEGY = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY
+_MIN_SCORE = 0.15  # discard weak name matches below this similarity
+_MIN_FUZZY_LEN = 3  # names shorter than this are matched exactly, never fuzzily
+
+
+def _build_automaton(color_dicts: Iterable[Dict[str, str]]) -> SubstringMatcher:
+    automaton = SubstringMatcher()
+    for colorlist in color_dicts:
+        for hex_str, name in colorlist.items():
+            automaton.add_word(_norm(name), hex_str)
+    if len(automaton):
+        automaton.make_automaton()
+    return automaton
+
+
+def _hits(automaton: SubstringMatcher, description: str) -> List[str]:
+    # an automaton built from an empty wordlist is never made, so guard on len
+    if len(automaton) == 0:
+        return []
+    return [hex_str for _, hex_str in automaton.iter(_norm(description))]
+
+
+def _specificity(name: str) -> float:
+    """Weight an exact match by how specific its name is: a longer, multi-word
+    name ("moss green") describes the intent more precisely than a short generic
+    one ("green"), so it should dominate the blend. Scoring by name length also
+    means a real match no longer washes out on long input, unlike comparing the
+    name against the whole sentence."""
+    return float(max(1, len(_norm(name))))
+
+
+def _exact_color_matches(color_dicts: List[Dict[str, str]], automaton: SubstringMatcher,
+                         description: str, strategy: MatchStrategy) -> List[Tuple[HLSColor, float]]:
+    # word-boundary spotting already guarantees each hit is a real, whole-word
+    # occurrence, so matches are weighted by specificity rather than re-scored
+    hits = _hits(automaton, description)
+    out = []
+    for color_dict in color_dicts:
+        for hex_str in hits:
+            if hex_str not in color_dict:
+                continue
+            name = color_dict[hex_str]
+            out.append((HLSColor.from_hex_str(hex_str, name=name), _specificity(name)))
+    return out
+
+
+def _fuzzy_color_matches(color_dicts: List[Dict[str, str]], description: str,
+                         strategy: MatchStrategy) -> List[Tuple[HLSColor, float]]:
+    """Similarity scan that also catches compound names an exact spotter misses
+    (e.g. "dunkles rot" ~ "dunkelrot").
+
+    A cheap token-set gate rejects most names before the more expensive
+    edit-distance score is computed, so this stays bounded in practice.
+    """
+    out = []
+    norm_desc = _norm(description)
+    for color_dict in color_dicts:
+        for hex_str, name in color_dict.items():
+            norm_name = _norm(name)
+            # very short names (e.g. the two-letter دم "blood") fuzzy-match almost
+            # any word that contains them; edit distance is meaningless at that
+            # length, and exact word-boundary spotting already covers them
+            if len(norm_name) < _MIN_FUZZY_LEN:
+                continue
+            gate = fuzzy_match(norm_name, norm_desc, strategy=MatchStrategy.TOKEN_SET_RATIO)
+            if gate < 0.8:
+                continue
+            s = fuzzy_match(norm_name, norm_desc, strategy=strategy)
+            if s >= _MIN_SCORE:
+                try:
+                    out.append((HLSColor.from_hex_str(hex_str, name=name), s))
+                except ValueError:
+                    pass
+    return out
+
+
+def _merge_matches(*groups: List[Tuple[HLSColor, float]]) -> List[Tuple[HLSColor, float]]:
+    """Union matches from several passes, keeping the highest score per
+    (hex, name) so the exact and fuzzy passes don't double-count a color."""
+    best: Dict[Tuple[str, Optional[str]], Tuple[HLSColor, float]] = {}
+    for group in groups:
+        for color, score in group:
+            key = (color.hex_str, color.name)
+            if key not in best or score > best[key][1]:
+                best[key] = (color, score)
+    return list(best.values())
+
+
+def _object_matches(obj_dict: Dict[str, str], automaton: SubstringMatcher,
+                    description: str, strategy: MatchStrategy) -> List[Tuple[HLSColor, float]]:
+    out = []
+    for hex_s in _hits(automaton, description):
+        if hex_s not in obj_dict:
+            continue
+        name = obj_dict[hex_s]
+        out.append((HLSColor.from_hex_str(hex_s, name=name), _specificity(name)))
+    return out
+
+
 class ColorMatcher:
-    _color_automatons: Dict[str, ahocorasick.Automaton] = {}
-    _object_automatons: Dict[str, ahocorasick.Automaton] = {}
+    """Spots color and object names in free text.
+
+    Can be used statically (``ColorMatcher.match_color_automaton(...)``, backed by
+    a per-language global cache) or instantiated with a fixed language — or with
+    custom vocabularies — for isolated, injectable matching::
+
+        matcher = ColorMatcher("en")
+        matcher.match_colors("moss green")
+        ColorMatcher("xx", color_palettes=[{"#FF0000": "rood"}]).match_colors("rood")
+
+    Matching is exact-first: the substring automaton is the fast path, and the
+    costlier fuzzy scan runs only when exact spotting finds nothing.
+    """
+
+    _color_automatons: Dict[str, SubstringMatcher] = {}
+    _object_automatons: Dict[str, SubstringMatcher] = {}
     __lock = threading.Lock()
+
+    def __init__(self, lang: str = "en",
+                 color_palettes: Optional[Iterable[Dict[str, str]]] = None,
+                 object_colors: Optional[Dict[str, str]] = None) -> None:
+        self.lang = lang
+        self._color_dicts = (list(color_palettes) if color_palettes is not None
+                             else list(iter_color_dicts(lang)))
+        self._object_dict = (dict(object_colors) if object_colors is not None
+                             else self._get_object_colors(lang))
+        self._color_automaton = _build_automaton(self._color_dicts)
+        self._object_automaton = _build_automaton([self._object_dict])
+
+    def match_colors(self, description: str,
+                     strategy: MatchStrategy = _DEFAULT_STRATEGY,
+                     fuzzy: bool = False) -> List[Tuple[HLSColor, float]]:
+        exact = _exact_color_matches(self._color_dicts, self._color_automaton,
+                                     description, strategy)
+        if not fuzzy:
+            return exact
+        return _merge_matches(exact, _fuzzy_color_matches(self._color_dicts, description, strategy))
+
+    def match_objects(self, description: str,
+                      strategy: MatchStrategy = _DEFAULT_STRATEGY) -> List[Tuple[HLSColor, float]]:
+        return _object_matches(self._object_dict, self._object_automaton, description, strategy)
 
     @staticmethod
     def _get_object_colors(lang: str) -> Dict[str, str]:
@@ -109,91 +256,40 @@ class ColorMatcher:
             return json.load(f)
 
     @classmethod
-    def load_color_automaton(cls, lang: str) -> ahocorasick.Automaton:
+    def load_color_automaton(cls, lang: str) -> SubstringMatcher:
         with cls.__lock:
-            if lang in cls._color_automatons:
-                return cls._color_automatons[lang]
-            automaton = ahocorasick.Automaton()
-            for colorlist in _load_color_json(lang):
-                for hex_str, name in colorlist.items():
-                    automaton.add_word(_norm(name), hex_str)
-            if len(automaton):
-                automaton.make_automaton()
-            cls._color_automatons[lang] = automaton
-        return automaton
+            if lang not in cls._color_automatons:
+                cls._color_automatons[lang] = _build_automaton(iter_color_dicts(lang))
+        return cls._color_automatons[lang]
 
     @classmethod
-    def load_object_automaton(cls, lang: str) -> ahocorasick.Automaton:
+    def load_object_automaton(cls, lang: str) -> SubstringMatcher:
         with cls.__lock:
-            if lang in cls._object_automatons:
-                return cls._object_automatons[lang]
-            automaton = ahocorasick.Automaton()
-            for hex_str, name in cls._get_object_colors(lang).items():
-                automaton.add_word(_norm(name), hex_str)
-            if len(automaton):
-                automaton.make_automaton()
-            cls._object_automatons[lang] = automaton
-        return automaton
+            if lang not in cls._object_automatons:
+                cls._object_automatons[lang] = _build_automaton([cls._get_object_colors(lang)])
+        return cls._object_automatons[lang]
 
     @staticmethod
     def match_automaton(automaton, description) -> List[str]:
-        # an automaton built from an empty wordlist (e.g. a locale without
-        # object_colors.json) is never converted via make_automaton()
-        if len(automaton) == 0:
-            return []
-        return [hex_str for _, hex_str in automaton.iter(_norm(description))]
+        return _hits(automaton, description)
 
     @classmethod
     def match_color_automaton(cls, description: str, lang: str = "en",
-                              strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
+                              strategy: MatchStrategy = _DEFAULT_STRATEGY,
                               fuzzy: bool = False) -> List[Tuple[HLSColor, float]]:
-        automaton = ColorMatcher.load_color_automaton(lang)
-        candidates = []
-        weights = []
-        for color_dict in _load_color_json(lang):
-            if fuzzy:
-                for h, n in color_dict.items():
-                    s = fuzzy_match(_norm(n), _norm(description), strategy=MatchStrategy.TOKEN_SET_RATIO)
-                    if s >= 0.8:
-                        s = fuzzy_match(_norm(n), _norm(description), strategy=strategy)
-                        if s >= 0.15:
-                            #print(f"DEBUG: matched fuzzy color -> {(n, h, s)}")
-                            weights.append(s)
-                            try:
-                                candidates.append(HLSColor.from_hex_str(h, name=n))
-                            except ValueError as e:
-                                #print(f"DEBUG: {e}")
-                                pass
-            else:
-                hex_strs = cls.match_automaton(automaton, description)
-                for hex_str in hex_strs:
-                    if hex_str not in color_dict:
-                        continue
-                    name = color_dict[hex_str]
-                    s = fuzzy_match(name, description, strategy=strategy)
-                    if s >= 0.15:
-                        # print(f"DEBUG: matched color -> {(name, hex_str, s)}")
-                        weights.append(s)
-                        candidates.append(HLSColor.from_hex_str(hex_str, name=name))
-        #print(candidates, weights)
-        return list(zip(candidates, weights))
+        color_dicts = list(iter_color_dicts(lang))
+        exact = _exact_color_matches(color_dicts, cls.load_color_automaton(lang),
+                                     description, strategy)
+        if not fuzzy:
+            return exact
+        return _merge_matches(exact, _fuzzy_color_matches(color_dicts, description, strategy))
 
     @classmethod
     def match_object_automaton(cls, description: str, lang: str = "en",
-                               strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY
+                               strategy: MatchStrategy = _DEFAULT_STRATEGY
                                ) -> List[Tuple[HLSColor, float]]:
-        obj_dict = cls._get_object_colors(lang)
-        automaton = ColorMatcher.load_object_automaton(lang)
-        hex_strs = cls.match_automaton(automaton, description)
-        candidates = []
-        weights = []
-        for hex_s in hex_strs:
-            if hex_s not in obj_dict:
-                continue
-            name = obj_dict[hex_s]
-            weights.append(fuzzy_match(name, description, strategy=strategy))
-            candidates.append(HLSColor.from_hex_str(hex_s, name=name))
-        return list(zip(candidates, weights))
+        return _object_matches(cls._get_object_colors(lang),
+                               cls.load_object_automaton(lang), description, strategy)
 
 
 def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
@@ -207,7 +303,16 @@ def _get_color_adjectives(lang: str) -> Dict[str, List[str]]:
         return json.load(f)
 
 
-def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -> sRGBAColor:
+def _fit(color: sRGBAColor, gamut: GamutPolicy) -> sRGBAColor:
+    """Bring ``color`` into the sRGB gamut using ``gamut`` (hue-preserving MAP,
+    per-channel CLAMP, or REJECT). In-gamut colors are returned unchanged."""
+    lin, _ = fit_to_gamut(srgb8_to_linear(color.r, color.g, color.b, color.a), gamut)
+    r, g, b, a = linear_to_srgb8(lin)
+    return sRGBAColor(r, g, b, a, name=color.name, description=color.description)
+
+
+def _adjust_color_attributes(color: Color, description: str, adjectives: dict,
+                             gamut: GamutPolicy = GamutPolicy.CLAMP) -> sRGBAColor:
     if not isinstance(color, HLSColor):
         color = color.as_hls
 
@@ -215,10 +320,18 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -
     if not adjectives:
         return color.as_rgb
 
-    description = description.lower().strip()
+    # strip diacritics so a vowelled modifier ("غَامِق") matches its bare
+    # descriptor entry, exactly as color names are matched
+    description = _strip_arabic_diacritics(description).lower().strip()
 
     def matches(key: str) -> bool:
-        return any(word.lower() in description for word in adjectives.get(key, []))
+        # match descriptor words on word boundaries so "light" fires on "light
+        # blue" but not on "delight", and multi-word cues still match verbatim
+        for word in adjectives.get(key, []):
+            w = _strip_arabic_diacritics(word).lower().strip()
+            if w and re.search(r"(?<!\w)" + re.escape(w) + r"(?!\w)", description):
+                return True
+        return False
 
     # Saturation adjustments with additive/subtractive control
     if matches("very_high_saturation"):
@@ -263,7 +376,7 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict) -
     elif matches("very_low_temperature"):
         color.b = min(255, color.b + 26)
 
-    return color
+    return _fit(color, gamut)
 
 
 def palette_from_description(description: str, lang: str = "en",
@@ -276,7 +389,8 @@ def palette_from_description(description: str, lang: str = "en",
 def color_from_description(description: str, lang: str = "en",
                            strategy: MatchStrategy = MatchStrategy.DAMERAU_LEVENSHTEIN_SIMILARITY,
                            cast_to_palette: bool = False,
-                           fuzzy: bool = True) -> Optional[sRGBAColor]:
+                           fuzzy: bool = True,
+                           gamut: GamutPolicy = GamutPolicy.CLAMP) -> Optional[sRGBAColor]:
     candidates: List[HLSColor] = []
     weights: List[float] = []
 
@@ -300,7 +414,7 @@ def color_from_description(description: str, lang: str = "en",
 
     # Step 4 - match luminance/saturation keywords
     c = _adjust_color_attributes(c, description,
-                                 _get_color_adjectives(lang))
+                                 _get_color_adjectives(lang), gamut)
     c.name = description.title()
 
     # do not invent colors
@@ -314,26 +428,25 @@ def color_from_description(description: str, lang: str = "en",
 
 
 def average_colors(colors: List[Color], weights: Optional[List[float]] = None) -> HLSColor:
+    """Weighted mix of colors, returned as an :class:`HLSColor`.
+
+    The mix is computed in **linear-light sRGB** (see :mod:`core.space`), which is
+    how light physically combines. Averaging in gamma-encoded HLS instead darkens
+    and desaturates the result — the classic "muddy blend" artefact. Named inputs
+    are recorded in the description without leaking Python container internals.
+    """
     if not colors:
         raise ValueError("colors must be a non-empty list")
     if weights is not None and len(weights) != len(colors):
         raise ValueError("weights must have the same length as colors")
-    colors = [c if isinstance(c, HLSColor) else c.as_hls for c in colors]
-    weights = weights or [1 / len(colors) for c in colors]
 
-    # Step 1: Weighted averages for Lightness and Saturation
-    total_weight = sum(weights)
-    avg_l = sum(c.l * w for c, w in zip(colors, weights)) / total_weight
-    avg_s = sum(c.s * w for c, w in zip(colors, weights)) / total_weight
+    rgbs = [c if isinstance(c, sRGBAColor) else c.as_rgb for c in colors]
+    lin = blend_linear([srgb8_to_linear(c.r, c.g, c.b, c.a) for c in rgbs], weights)
+    r, g, b, a = linear_to_srgb8(lin)
 
-    # Step 2: Weighted circular mean for Hue
-    sin_sum = sum(math.sin(math.radians(c.h)) * w for c, w in zip(colors, weights))
-    cos_sum = sum(math.cos(math.radians(c.h)) * w for c, w in zip(colors, weights))
-    avg_h = int(math.degrees(math.atan2(sin_sum, cos_sum)) % 360)  # Ensure hue is in [0, 360)
-
-    # Return new averaged HLSColor
-    return HLSColor(h=avg_h, l=avg_l, s=avg_s,
-                    description=f"Weighted average: {set(zip([c.name for c in colors], weights))}")
+    names = [c.name for c in colors if getattr(c, "name", None)]
+    desc = "Weighted average of " + (", ".join(names) if names else f"{len(colors)} colors")
+    return sRGBAColor(r, g, b, a, description=desc).as_hls
 
 
 def convert_K_to_RGB(colour_temperature: int) -> sRGBAColor:

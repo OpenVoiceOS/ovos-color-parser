@@ -8,6 +8,7 @@ import os
 import unittest
 
 from ovos_color_parser import color_from_description, lookup_name, sRGBAColor
+from ovos_color_parser.matching import color_distance
 
 RES = os.path.join(os.path.dirname(__file__), "..", "ovos_color_parser", "res")
 
@@ -166,6 +167,143 @@ class TestDiacriticsAndCompounds(unittest.TestCase):
         dark = color_from_description("vermelho escuro", "pt")
         self.assertIsNotNone(dark)
         self.assertLess(dark.as_hls.l, base.as_hls.l)
+
+
+def is_greenish(color: sRGBAColor) -> bool:
+    return 80 <= color.as_hls.h <= 170
+
+
+class TestArabic(unittest.TestCase):
+    """Comprehensive Modern Standard Arabic and dialectal coverage."""
+
+    # Modern Standard Arabic named colors that must resolve with a plausible hue.
+    MSA = {
+        "أخضر": is_greenish,      # green
+        "أصفر": None,             # yellow
+        "برتقالي": None,          # orange
+        "بنفسجي": None,           # purple
+        "بني": None,              # brown
+        "فيروزي": None,           # turquoise
+        "أزرق مخضر": is_bluish,   # teal
+        "سيان": is_bluish,        # cyan
+        "مرجاني": is_reddish,     # coral
+        "خزامي": None,            # lavender
+        "زهري": is_reddish,       # pink
+        "كاكي": None,             # khaki
+        "خردلي": None,            # mustard
+        "نعناعي": is_greenish,    # mint
+        "كهرماني": None,          # amber
+        "عنابي": is_reddish,      # burgundy
+    }
+
+    # Dialectal color terms grouped by major dialect area.
+    DIALECT = {
+        "بمبي": is_reddish,     # Egyptian pink
+        "لبني": is_bluish,      # Egyptian/Levantine light blue
+        "بترولي": is_bluish,    # Egyptian/Levantine petrol/teal
+        "روز": is_reddish,      # Levantine/Maghrebi rose-pink
+        "جوزي": None,           # Levantine/Iraqi walnut brown
+        "قهوائي": is_reddish,   # Gulf coffee-brown
+        "عسلي": None,           # Gulf honey
+        "طوبي": is_reddish,     # Iraqi/Levantine brick-red
+        "جكليتي": None,         # Iraqi/Gulf chocolate-brown
+        "بلو": is_bluish,       # Maghrebi/Darija blue (French loan)
+    }
+
+    def _assert_hue(self, word, predicate):
+        c = color_from_description(word, "ar")
+        self.assertIsNotNone(c, f"no match for {word!r}")
+        if predicate is not None:
+            self.assertTrue(predicate(c), f"{word!r} -> {c.hex_str} hue {c.as_hls.h} unexpected")
+
+    def test_msa_colors(self):
+        for word, predicate in self.MSA.items():
+            with self.subTest(word=word):
+                self._assert_hue(word, predicate)
+
+    def test_dialectal_colors(self):
+        for word, predicate in self.DIALECT.items():
+            with self.subTest(word=word):
+                self._assert_hue(word, predicate)
+
+    def test_orthographic_variants_hamzaless(self):
+        # users type initial hamza forms interchangeably: أحمر vs احمر.
+        # both spellings must land on perceptually the same color.
+        for hamza, plain in [("أحمر", "احمر"), ("أزرق", "ازرق"),
+                             ("أخضر", "اخضر"), ("أصفر", "اصفر"),
+                             ("أبيض", "ابيض"), ("أسود", "اسود")]:
+            with self.subTest(word=plain):
+                a = color_from_description(hamza, "ar")
+                b = color_from_description(plain, "ar")
+                self.assertIsNotNone(b, f"{plain!r} did not match")
+                self.assertLess(color_distance(a, b), 15,
+                                f"{plain!r} -> {b.hex_str} far from {hamza!r} -> {a.hex_str}")
+
+    def test_orthographic_variant_yaa(self):
+        # final ya written as alef-maqsura: بنفسجى for بنفسجي
+        self._assert_hue("بنفسجى", None)
+        self._assert_hue("وردى", is_reddish)
+
+    def test_tashkeel_is_ignored(self):
+        # tashkeel (vowel marks) are optional: a diacritized spelling must resolve
+        # to exactly the same color as its bare form, for every color word.
+        for bare, diac in [("أحمر", "أَحْمَر"), ("أزرق", "أَزْرَق"),
+                           ("أخضر", "أَخْضَر"), ("أصفر", "أَصْفَر"),
+                           ("بنفسجي", "بَنَفْسَجِيّ")]:
+            with self.subTest(word=bare):
+                b = color_from_description(bare, "ar")
+                d = color_from_description(diac, "ar")
+                self.assertIsNotNone(d, f"diacritized {diac!r} did not match")
+                self.assertEqual(b.hex_str, d.hex_str,
+                                 f"{diac!r} -> {d.hex_str} != {bare!r} -> {b.hex_str}")
+
+    def test_tashkeel_on_dialectal_and_modifiers(self):
+        # stripping applies everywhere: dialectal names and modifier phrases too
+        self._assert_hue("بَمْبِي", is_reddish)                 # vowelled Egyptian pink
+        base = color_from_description("أحمر", "ar")
+        dark = color_from_description("أَحْمَر غَامِق", "ar")   # fully vowelled "dark red"
+        self.assertIsNotNone(dark)
+        self.assertLess(dark.as_hls.l, base.as_hls.l)
+
+    def test_object_colors(self):
+        # prototypical objects imply their color
+        self._assert_hue("سماء", is_bluish)     # sky -> blue
+        self._assert_hue("موز", None)           # banana -> yellow
+        self._assert_hue("طماطم", is_reddish)   # tomato -> red
+        self._assert_hue("بندورة", is_reddish)  # tomato (Levantine) -> red
+
+    def test_dark_modifier_lowers_lightness(self):
+        base = color_from_description("أحمر", "ar")
+        dark = color_from_description("أحمر غامق", "ar")
+        self.assertIsNotNone(dark)
+        self.assertLess(dark.as_hls.l, base.as_hls.l)
+
+    def test_light_modifier_raises_lightness(self):
+        base = color_from_description("أزرق", "ar")
+        light = color_from_description("أزرق فاتح", "ar")
+        self.assertIsNotNone(light)
+        self.assertGreater(light.as_hls.l, base.as_hls.l)
+
+    def test_adversarial_empty(self):
+        self.assertIsNone(color_from_description("", "ar"))
+
+    def test_adversarial_non_arabic_noise(self):
+        self.assertIsNone(color_from_description("qzxwvqq lorem ipsum", "ar"))
+
+    def test_adversarial_unknown_word(self):
+        self.assertIsNone(color_from_description("سيارة كبيرة", "ar"))  # "big car"
+
+    def test_adversarial_embedded_substring(self):
+        # "بنيان" (building) contains "بني" (brown) but must not be read as a color
+        self.assertIsNone(color_from_description("بنيان", "ar"))
+
+    def test_adversarial_short_word_no_fuzzy_collision(self):
+        # short color/object words must not fuzzy-match longer unrelated words:
+        # "قدم" (foot) and "مقدم" (presenter) both contain "دم" (blood)
+        self.assertIsNone(color_from_description("قدم", "ar"))
+        self.assertIsNone(color_from_description("مقدم", "ar"))
+        # the real two-letter word still resolves exactly
+        self.assertIsNotNone(color_from_description("دم", "ar"))
 
 
 if __name__ == "__main__":

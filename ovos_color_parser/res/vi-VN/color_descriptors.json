@@ -1,0 +1,18 @@
+{
+  "very_high_saturation": ["neon", "bão hòa", "rực rỡ", "chói", "sặc sỡ", "đậm đặc", "huỳnh quang", "tươi rói"],
+  "high_saturation": ["rực rỡ", "tươi", "sống động", "mạnh", "đậm đà", "nổi bật", "thắm"],
+  "low_saturation": ["xỉn", "nhạt", "phai", "dịu", "nhợt", "pastel", "êm", "trầm"],
+  "very_low_saturation": ["xám xịt", "bạc màu", "vô sắc", "đơn sắc", "nhợt nhạt", "xám ngoét", "trung tính"],
+  "very_high_brightness": ["chói lóa", "rực sáng", "chói chang", "lấp lánh", "rạng rỡ", "lóa mắt"],
+  "high_brightness": ["sáng", "nhạt", "tươi sáng", "sáng sủa", "trong trẻo", "sáng nhẹ"],
+  "low_brightness": ["tối", "sẫm", "âm u", "mờ tối", "thẫm", "u tối"],
+  "very_low_brightness": ["đen kịt", "tối đen", "cực tối", "mực đen", "thâm u", "tối mịt"],
+  "very_high_temperature": ["nóng bỏng", "cháy bỏng", "rực lửa", "nóng rực", "như dung nham", "thiêu đốt"],
+  "high_temperature": ["ấm", "ấm áp", "nóng", "ấm nóng", "hửng nắng", "nồng ấm"],
+  "low_temperature": ["mát", "mát mẻ", "lạnh", "se lạnh", "mát lạnh", "dịu mát"],
+  "very_low_temperature": ["buốt giá", "băng giá", "lạnh cóng", "giá rét", "cực lạnh", "lạnh buốt"],
+  "very_high_opacity": ["đục", "đặc", "dày", "mờ đục", "kín", "không xuyên thấu"],
+  "high_opacity": ["dày", "đặc", "đậm đặc", "chắc", "mờ", "nặng"],
+  "low_opacity": ["trong suốt", "trong veo", "mờ ảo", "mỏng", "trong", "mảnh"],
+  "very_low_opacity": ["thoáng", "huyền ảo", "mỏng manh", "như sương", "thấp thoáng", "mờ nhạt"]
+}

@@ -1,0 +1,59 @@
+{
+  "very_high_saturation": [
+    "intenso",
+    "fuorte"
+  ],
+  "high_saturation": [
+    "intenso",
+    "fuorte"
+  ],
+  "low_saturation": [
+    "fraco",
+    "pálido"
+  ],
+  "very_low_saturation": [
+    "pálido",
+    "fraco"
+  ],
+  "very_high_brightness": [
+    "brilhante",
+    "luç",
+    "brilho"
+  ],
+  "high_brightness": [
+    "brilho",
+    "luç"
+  ],
+  "low_brightness": [
+    "scuro"
+  ],
+  "very_low_brightness": [
+    "scuro",
+    "negro"
+  ],
+  "very_high_temperature": [
+    "quente"
+  ],
+  "high_temperature": [
+    "quente"
+  ],
+  "low_temperature": [
+    "frio"
+  ],
+  "very_low_temperature": [
+    "frio"
+  ],
+  "very_high_opacity": [
+    "opaco",
+    "denso"
+  ],
+  "high_opacity": [
+    "denso"
+  ],
+  "low_opacity": [
+    "transparente"
+  ],
+  "very_low_opacity": [
+    "transparente"
+  ]
+}

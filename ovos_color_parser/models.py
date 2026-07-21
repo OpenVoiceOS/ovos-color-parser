@@ -9,6 +9,10 @@ from typing import List, Optional, Union
 #  - HLS  <- all color operations are performed in this space
 #  - Spectral (wave length)
 
+# Approximate bounds of the human-visible spectrum, in nanometers.
+VISIBLE_MIN_NM = 380
+VISIBLE_MAX_NM = 750
+
 
 @dataclass
 class sRGBAColor:
@@ -168,6 +172,18 @@ class SpectralColor:
     def wavelen(self) -> int:
         return int((self.wavelen_nm_max + self.wavelen_nm_min) / 2)
 
+    @property
+    def is_visible(self) -> bool:
+        """Whether the representative wavelength falls within human vision
+        (~380-750 nm).
+
+        Infrared, ultraviolet, radio, X-ray and gamma bands have no true color;
+        their ``as_rgb`` is a stand-in (black for sub-visible energy, white for
+        super-visible), so callers that care should check this first rather than
+        trusting the placeholder RGB. The test uses the same representative
+        ``wavelen`` that ``as_rgb`` resolves, so the two always agree."""
+        return VISIBLE_MIN_NM <= self.wavelen <= VISIBLE_MAX_NM
+
     @staticmethod
     def _wavelength_to_hue(wavelen: int, palette: 'SpectralColorPalette') -> int:
 
@@ -256,17 +272,32 @@ class HueRange:
                     break
         return specolor
 
-    @property
-    def as_rgb(self) -> 'sRGBAColorPalette':
-        return sRGBAColorPalette(colors=[])  # TODO
+    def sample(self, steps: int = 5) -> 'HSVColorPalette':
+        """Sample ``steps`` evenly-spaced fully-saturated hues across the range.
 
-    @property
-    def as_hls(self) -> 'HLSColorPalette':
-        return HLSColorPalette(colors=[])  # TODO
+        A :class:`HueRange` covers a band of hues, so its palette representation is
+        that band sampled into concrete colors rather than a single point. ``steps``
+        is clamped to at least 1; a zero-width range yields a single color.
+        """
+        steps = max(1, steps)
+        lo, hi = self.min_hue_approximation, self.max_hue_approximation
+        if hi == lo or steps == 1:
+            hues = [self.hue]
+        else:
+            hues = [round(lo + (hi - lo) * i / (steps - 1)) for i in range(steps)]
+        return HSVColorPalette(colors=[HSVColor(h, 1.0, 1.0, name=self.name) for h in hues])
 
     @property
     def as_hsv(self) -> 'HSVColorPalette':
-        return HSVColorPalette(colors=[])  # TODO
+        return self.sample()
+
+    @property
+    def as_rgb(self) -> 'sRGBAColorPalette':
+        return self.as_hsv.as_rgb
+
+    @property
+    def as_hls(self) -> 'HLSColorPalette':
+        return self.as_hsv.as_hls
 
     # Convert hue range to wavelength range in nanometers
     @staticmethod

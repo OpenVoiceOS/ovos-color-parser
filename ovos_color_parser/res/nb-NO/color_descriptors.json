@@ -1,0 +1,128 @@
+{
+  "very_high_saturation": [
+    "neon",
+    "mettet",
+    "intens",
+    "knallende",
+    "elektrisk",
+    "skrikende",
+    "supermettet"
+  ],
+  "high_saturation": [
+    "livlig",
+    "fyldig",
+    "dyp",
+    "sterk",
+    "kraftig",
+    "klar",
+    "intens",
+    "ren"
+  ],
+  "low_saturation": [
+    "matt",
+    "falmet",
+    "blek",
+    "dempet",
+    "pastell",
+    "mild",
+    "diskret",
+    "avdempet"
+  ],
+  "very_low_saturation": [
+    "gråaktig",
+    "utvasket",
+    "avmettet",
+    "fargeløs",
+    "nøytral",
+    "bleket",
+    "monokrom"
+  ],
+  "very_high_brightness": [
+    "blendende",
+    "strålende",
+    "glitrende",
+    "skinnende",
+    "lysende"
+  ],
+  "high_brightness": [
+    "lys",
+    "klar",
+    "lysende",
+    "solbelyst",
+    "blank",
+    "skinnende"
+  ],
+  "low_brightness": [
+    "mørk",
+    "dunkel",
+    "dempet",
+    "dyster",
+    "matt",
+    "svak"
+  ],
+  "very_low_brightness": [
+    "veldig mørk",
+    "kullsvart",
+    "bekmørk",
+    "dypt mørk",
+    "skyggefull",
+    "nattsvart"
+  ],
+  "very_high_temperature": [
+    "brennhet",
+    "glødende",
+    "ildfull",
+    "flammende",
+    "kokende"
+  ],
+  "high_temperature": [
+    "varm",
+    "het",
+    "solrik",
+    "gyllen",
+    "rusten"
+  ],
+  "low_temperature": [
+    "kald",
+    "sval",
+    "frisk",
+    "kjølig",
+    "vinterlig"
+  ],
+  "very_low_temperature": [
+    "iskald",
+    "arktisk",
+    "frossen",
+    "polar",
+    "isnende"
+  ],
+  "very_high_opacity": [
+    "ugjennomsiktig",
+    "tett",
+    "massiv",
+    "kompakt",
+    "solid"
+  ],
+  "high_opacity": [
+    "solid",
+    "tett",
+    "ugjennomsiktig",
+    "kraftig",
+    "fyldig"
+  ],
+  "low_opacity": [
+    "gjennomsiktig",
+    "transparent",
+    "klar",
+    "tynn",
+    "luftig"
+  ],
+  "very_low_opacity": [
+    "gjennomskinnelig",
+    "spøkelsesaktig",
+    "eterisk",
+    "knapt synlig",
+    "tåkete",
+    "slørete"
+  ]
+}

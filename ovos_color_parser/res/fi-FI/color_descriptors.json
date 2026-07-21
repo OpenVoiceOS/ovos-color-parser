@@ -1,0 +1,127 @@
+{
+  "very_high_saturation": [
+    "neon",
+    "kylläinen",
+    "intensiivinen",
+    "kirkuva",
+    "sähköinen",
+    "räikeä",
+    "ylikylläinen"
+  ],
+  "high_saturation": [
+    "eloisa",
+    "täyteläinen",
+    "syvä",
+    "voimakas",
+    "vahva",
+    "kirkas",
+    "intensiivinen",
+    "puhdas"
+  ],
+  "low_saturation": [
+    "haalea",
+    "haalistunut",
+    "kalpea",
+    "vaimea",
+    "pastelli",
+    "pehmeä",
+    "hillitty",
+    "mattapintainen"
+  ],
+  "very_low_saturation": [
+    "harmahtava",
+    "pesty",
+    "kyllästymätön",
+    "väritön",
+    "neutraali",
+    "valjennut",
+    "yksivärinen"
+  ],
+  "very_high_brightness": [
+    "häikäisevä",
+    "säteilevä",
+    "kimalteleva",
+    "hohtava",
+    "loistava"
+  ],
+  "high_brightness": [
+    "kirkas",
+    "valoisa",
+    "hohtava",
+    "auringonvalaisema",
+    "kiiltävä",
+    "loistava"
+  ],
+  "low_brightness": [
+    "tumma",
+    "hämärä",
+    "vaimea",
+    "synkkä",
+    "himmeä",
+    "heikko"
+  ],
+  "very_low_brightness": [
+    "hyvin tumma",
+    "pikimusta",
+    "koulmusta",
+    "syvän tumma",
+    "varjoisa"
+  ],
+  "very_high_temperature": [
+    "polttava",
+    "hehkuva",
+    "tulinen",
+    "liekehtivä",
+    "kiehuva"
+  ],
+  "high_temperature": [
+    "lämmin",
+    "kuuma",
+    "aurinkoinen",
+    "kultainen",
+    "ruosteinen"
+  ],
+  "low_temperature": [
+    "kylmä",
+    "viileä",
+    "raikas",
+    "kolea",
+    "talvinen"
+  ],
+  "very_low_temperature": [
+    "jäinen",
+    "arktinen",
+    "jäätynyt",
+    "napainen",
+    "jäätävä"
+  ],
+  "very_high_opacity": [
+    "läpinäkymätön",
+    "tiivis",
+    "massiivinen",
+    "kompakti",
+    "kiinteä"
+  ],
+  "high_opacity": [
+    "kiinteä",
+    "tiivis",
+    "läpinäkymätön",
+    "vankka",
+    "täyteläinen"
+  ],
+  "low_opacity": [
+    "läpinäkyvä",
+    "läpikuultava",
+    "kirkas",
+    "ohut",
+    "ilmava"
+  ],
+  "very_low_opacity": [
+    "läpikuultava",
+    "aavemainen",
+    "eteerinen",
+    "tuskin näkyvä",
+    "sumuinen",
+    "huntumainen"
+  ]
+}

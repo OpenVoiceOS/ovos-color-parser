@@ -67,33 +67,31 @@ color = color_from_description("very bright, slightly warm muted blue")
 
 </details>
 
-This approach, while interpretative, offers a structured way to translate natural language color descriptions into RGB
-approximations.
+These keywords give a structured way to translate a natural-language color description into an RGB
+approximation.
 
-#### Color Keywords 
+#### Color keywords
 
+Each language ships a `color_descriptors.json` file that maps a modifier category to the words that
+signal it. Each of the four properties — saturation, brightness, temperature and opacity — has four
+categories: a `very_high_*`, `high_*`, `low_*` and `very_low_*` variant. The parser applies the
+strongest matching category in each property.
 
-To categorize adjectives and keywords that describe color in ways that translate into RGB or color space adjustments the
-parser uses a `.json` file per language
+Example structure:
 
-Example JSON structure for English color keywords:
- 
 ```json
 {
-  "saturation": {
-    "high": ["vibrant", "rich", "bold", "deep"],
-    "low": ["dull", "muted", "washed-out", "faded"]
-  },
-  "brightness": {
-    "high": ["bright", "light", "pale", "glowing"],
-    "low": ["dim", "dark", "shadowy", "faint"]
-  }
+  "high_saturation": ["vibrant", "rich", "bold", "deep"],
+  "low_saturation": ["dull", "muted", "washed-out", "faded"],
+  "high_brightness": ["bright", "light", "pale", "luminous"],
+  "low_brightness": ["dim", "dark", "shadowy", "faint"]
 }
 ```
 
-Color name lists in each language are also used to determine the **hue**. 
+Modifier words are matched on word boundaries, so "light" applies in "light blue" but not in
+"flighty". Color name lists in each language determine the **hue**.
 
-> English has a word list of almost ~6000 color name mappings
+> English ships roughly 14,700 color-name mappings.
 
 
 Below are some examples of non-color-name keywords that define other qualities of a color
