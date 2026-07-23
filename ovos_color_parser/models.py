@@ -202,8 +202,36 @@ class SpectralColor:
                         hue_range.max_hue_approximation - hue_range.min_hue_approximation)
                 return int(hue)
 
-        # Raise an error if wavelength is out of any defined range in the palette
-        raise ValueError("Wavelength is out of the defined spectral color palette.")
+        # The named ISCC-NBS bands only cover representative sub-ranges of the visible
+        # spectrum, so there are gaps between them (e.g. between "Yellow" at 580nm and
+        # "Orange" at 590-600nm). A wavelength landing in one of those gaps has no exact
+        # match above; snap it to whichever band edge is nearest instead of raising, so
+        # every wavelength in the palette's overall span still resolves to a hue.
+        # Wavelengths outside the palette's overall span entirely (e.g. below the
+        # violet band or above the red band) remain genuinely out of range and still
+        # raise, as they are outside the visible-spectrum data the palette models.
+        overall_min = min(c.wavelen_nm_min for c in palette.colors)
+        overall_max = max(c.wavelen_nm_max for c in palette.colors)
+        if wavelen < overall_min or wavelen > overall_max:
+            raise ValueError("Wavelength is out of the defined spectral color palette.")
+
+        best_hue = None
+        best_dist = None
+        for color_term in palette.colors:
+            hue_range = color_term.hue_approximation
+            if wavelen < color_term.wavelen_nm_min:
+                dist = color_term.wavelen_nm_min - wavelen
+                hue = hue_range.min_hue_approximation
+            else:
+                dist = wavelen - color_term.wavelen_nm_max
+                hue = hue_range.max_hue_approximation
+            if best_dist is None or dist < best_dist:
+                best_dist = dist
+                best_hue = hue
+        if best_hue is None:
+            # Raise an error if the palette has no colors defined at all.
+            raise ValueError("Wavelength is out of the defined spectral color palette.")
+        return best_hue
 
     @property
     def as_rgb(self) -> 'sRGBAColor':
@@ -319,8 +347,28 @@ class HueRange:
                         wavelen_max - wavelen_min)
                 return int(wavelength)
 
-        # Default return if hue is out of the predefined ranges
-        raise ValueError("Hue is out of the defined spectral color palette.")
+        # The named ISCC-NBS hue bands only cover representative sub-ranges of the hue
+        # circle, so there are gaps between them (e.g. pure orange at hue ~39 falls
+        # between the "Yellow" (28) and "Yellow-Green" (62-104) bands). A hue landing
+        # in one of those gaps has no exact match above; snap it to whichever band
+        # edge is nearest (in circular hue distance) instead of raising, so every hue
+        # 0-360 resolves to a spectral term.
+        best_wavelen = None
+        best_dist = None
+        for color_term in palette.colors:
+            hue_range = color_term.hue_approximation
+            for edge_hue, edge_wavelen in (
+                    (hue_range.min_hue_approximation, color_term.wavelen_nm_min),
+                    (hue_range.max_hue_approximation, color_term.wavelen_nm_max)):
+                dist = abs(hue - edge_hue) % 360
+                dist = min(dist, 360 - dist)
+                if best_dist is None or dist < best_dist:
+                    best_dist = dist
+                    best_wavelen = edge_wavelen
+        if best_wavelen is None:
+            # Raise an error if the palette has no colors defined at all.
+            raise ValueError("Hue is out of the defined spectral color palette.")
+        return best_wavelen
 
     def __post_init__(self):
         # Enforce hue values between 0 and 360

@@ -142,6 +142,27 @@ class TestSpectralColor(unittest.TestCase):
             sc.as_rgb
 
 
+class TestSpectralHueGaps(unittest.TestCase):
+    """The ISCC-NBS hue bands only cover representative sub-ranges of the hue
+    circle and leave gaps between them; every hue must still resolve to a
+    spectral term instead of raising ValueError."""
+
+    def test_all_360_hues_resolve_without_error(self):
+        for hue in range(361):
+            try:
+                spectral = HSVColor(hue).as_spectral_color
+            except ValueError as e:
+                self.fail(f"hue {hue} raised ValueError: {e}")
+            self.assertIsInstance(spectral, SpectralColor)
+
+    def test_pure_orange_hue_resolves(self):
+        # hue ~39 (pure orange) falls in the gap between the "Yellow" (28) and
+        # "Yellow-Green" (62-104) ISCC-NBS bands.
+        spectral = HSVColor(39).as_spectral_color
+        self.assertIsInstance(spectral, SpectralColor)
+        self.assertIsNotNone(spectral.name)
+
+
 class TestPalettes(unittest.TestCase):
     def test_rgb_palette_conversions(self):
         p = sRGBAColorPalette(colors=[sRGBAColor(255, 0, 0), sRGBAColor(0, 0, 255)])
