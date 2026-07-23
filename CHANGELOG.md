@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.2a1) (2026-07-23)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.1a1...0.11.2a1)
+
+**Merged pull requests:**
+
+- fix: published wheel is missing core/match/vocab subpackages [\#116](https://github.com/OpenVoiceOS/ovos-color-parser/pull/116) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.11.1a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.1a1) (2026-07-23)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.0...0.11.1a1)
