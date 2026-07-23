@@ -160,10 +160,12 @@ class TestColorTermVocab(unittest.TestCase):
         self.assertIsNotNone(t.hex_approximation)
         self.assertTrue(t.hex_approximation.startswith("#"))
 
-    def test_hue_only_term_uncovered_hue_leaves_hex_none(self):
-        # hue outside the discontinuous spectral term coverage cannot derive a hex
+    def test_hue_in_spectral_gap_still_derives_hex(self):
+        # hue 30 falls in a gap between named ISCC-NBS bands ("Yellow" at 28 and
+        # "Yellow-Green" at 62-104); the nearest-band fallback still derives a hex.
         t = ColorTerm("z", hue=HueRange(30, 30))
-        self.assertIsNone(t.hex_approximation)
+        self.assertIsNotNone(t.hex_approximation)
+        self.assertTrue(t.hex_approximation.startswith("#"))
 
     def test_english_terms_complete(self):
         for t in EnglishColorTerms.terms:
