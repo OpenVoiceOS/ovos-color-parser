@@ -28,8 +28,8 @@ Homepage = "https://github.com/OpenVoiceOS/ovos-color-parser"
 Source = "https://github.com/OpenVoiceOS/ovos-color-parser"
 Issues = "https://github.com/OpenVoiceOS/ovos-color-parser/issues"
 
-[tool.setuptools]
-packages = ["ovos_color_parser"]
+[tool.setuptools.packages.find]
+include = ["ovos_color_parser*"]
 
 [tool.setuptools.package-data]
 ovos_color_parser = ["res/*.json", "res/*/*.json"]
