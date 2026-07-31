@@ -107,3 +107,6 @@ RGB (0-255) to CMYK (0-100) and back.
 falls back to fuzzy token matching. Language resources resolve by best locale match: an exact
 case-insensitive tag first (`pt-br` → `pt-BR`), then any locale sharing the primary subtag
 (`en-GB` → `en-US`).
+
+---
+[← Color, language and color spaces](color-theory.md) · [Home](../README.md) · [Language support →](languages.md)

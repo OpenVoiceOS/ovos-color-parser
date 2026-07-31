@@ -82,3 +82,6 @@ print(picked.name)   # 'Brand Blue'
 A requested tag resolves to the closest bundled locale: exact case-insensitive tag first, then any
 locale sharing the primary language subtag. See [languages.md](languages.md) for the current
 locale list and per-language vocabulary notes.
+
+---
+[← Language support](languages.md) · [Home](../README.md)

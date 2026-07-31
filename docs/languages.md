@@ -38,7 +38,7 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 bundled locale.
 
 ¹ `color_descriptors.json`: saturation/brightness/temperature/opacity adjectives ("dark", "vivid",
-"warm", "transparent"). Locales without it still match color names; modifiers are simply ignored.
+"warm", "transparent"). Locales without it still match color names. Modifiers are simply ignored.
 
 ² `object_colors.json`: prototypical object colors ("carrot", "banana", "blood").
 
@@ -47,26 +47,29 @@ instead of raising.
 
 The largest wordlists (Danish, English, French) share the full ~14.7k-entry set covering web
 colors, the xkcd survey, crayola, RAL, Pantone and more. Smaller locales ship curated basic and
-traditional color terms; they resolve common names accurately but will snap unusual descriptions
+traditional color terms. They resolve common names accurately but will snap unusual descriptions
 to a nearer basic color.
 
 ## Arabic notes
 
 Arabic ships four color wordlists plus object colors and modifier keywords. `colors.json`
-holds Modern Standard Arabic (fuṣḥā) basic and extended shades — teal (`أزرق مخضر`),
+holds Modern Standard Arabic (fuṣḥā) basic and extended shades: teal (`أزرق مخضر`),
 cyan (`سيان`), coral (`مرجاني`), lavender (`خزامي`), khaki (`كاكي`), mustard (`خردلي`),
-mint (`نعناعي`), amber (`كهرماني`), burgundy (`عنابي`) and more. `dialectal_colors.json`
-adds colloquial terms spanning the major dialect areas: Egyptian (`بمبي` pink, `لبني`
-light blue, `بترولي` petrol), Levantine/Shami (`روز` rose, `جوزي` walnut brown),
-Gulf/Khaleeji (`قهوائي` coffee-brown, `عسلي` honey, `سكري` sugar-cream), Iraqi
+mint (`نعناعي`), amber (`كهرماني`), burgundy (`عنابي`) and more.
+
+`dialectal_colors.json` adds colloquial terms spanning the major dialect areas: Egyptian
+(`بمبي` pink, `لبني` light blue, `بترولي` petrol), Levantine/Shami (`روز` rose, `جوزي` walnut
+brown), Gulf/Khaleeji (`قهوائي` coffee-brown, `عسلي` honey, `سكري` sugar-cream), Iraqi
 (`طوبي` brick-red, `جكليتي` chocolate-brown) and Maghrebi/Darija (`بلو` blue). Multiple
 names map to a shared hex, so synonyms and dialectal variants resolve to the same color.
 
 Arabic tashkeel (the optional short-vowel and other diacritic marks) are removed during
-normalization, so a word matches whether it is written bare or fully vowelled — `أحمر` and
+normalization, so a word matches whether it is written bare or fully vowelled. `أحمر` and
 `أَحْمَر` resolve to the same color, and the same holds for dialectal names and modifier
-phrases. Letter-form differences are not diacritics and are handled as data:
-`orthographic_variants.json` ships the spellings a user might type differently — the
+phrases.
+
+Letter-form differences are not diacritics and are handled as data.
+`orthographic_variants.json` ships the spellings a user might type differently: the
 hamza-less initial alef (`احمر` for `أحمر`) and alef-maqṣūra for final yāʾ (`بنفسجى`).
 `object_colors.json` maps prototypical objects to their color, including dialectal object
 words (`طماطم` vs Levantine `بندورة` for tomato, `موز` banana-yellow, `سماء` sky-blue,
@@ -74,16 +77,16 @@ words (`طماطم` vs Levantine `بندورة` for tomato, `موز` banana-yell
 modifiers for brightness, saturation, temperature and opacity (dark `غامق`/`غانق`, light
 `فاتح`/`فاقع`).
 
-Very short names (such as the two-letter `دم`, blood) match only as whole words, never
-fuzzily, so an unrelated word that merely contains them — `قدم` (foot), `بنيان` (building) —
-is not misread as a color.
+Very short names, such as the two-letter `دم` (blood), match only as whole words, never
+fuzzily. An unrelated word that merely contains them, such as `قدم` (foot) or `بنيان`
+(building), is not misread as a color.
 
 ## Kabyle notes
 
 Kabyle colexifies blue and green: `azegzaw` covers both and is mapped to both hexes ("grue").
-`anili` (indigo), `azenǧǧari` (sky blue) and `amuri` (navy) name specific blues; `adal`,
-`azemmuri` (olive) and `aqesli` (light green) are attested greens. Only attested terms ship;
-modifier keywords are omitted for lack of sources.
+`anili` (indigo), `azenǧǧari` (sky blue) and `amuri` (navy) name specific blues. `adal`,
+`azemmuri` (olive) and `aqesli` (light green) are attested greens. Only attested terms ship.
+Modifier keywords are omitted for lack of sources.
 
 ## Wordlist sources
 
@@ -95,3 +98,6 @@ traditional Japanese colors and Wikipedia's list of colors.
 
 See [extending.md](extending.md#adding-a-language) for the step-by-step guide to adding a locale,
 shipping custom wordlists, and enabling modifier keywords.
+
+---
+[← API reference](api.md) · [Home](../README.md) · [Extending →](extending.md)
