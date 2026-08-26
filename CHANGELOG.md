@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.3a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.3a1) (2026-08-26)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.2a1...0.11.3a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#120](https://github.com/OpenVoiceOS/ovos-color-parser/pull/120) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+
 ## [0.11.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.2a1) (2026-07-23)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.1a1...0.11.2a1)
