@@ -195,3 +195,6 @@ Warmer colors (2700K–3000K) create a welcoming, relaxed atmosphere ideal for r
 </details>
 
 ## Language support
+
+---
+[← Color description semantics](keywords.md) · [Home](../README.md) · [API reference →](api.md)

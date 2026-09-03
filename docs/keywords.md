@@ -155,3 +155,6 @@ Below are some examples of non-color-name keywords that define other qualities o
 </details>
 
 
+
+---
+[← Usage guide](usage.md) · [Home](../README.md) · [Color, language and color spaces →](color-theory.md)

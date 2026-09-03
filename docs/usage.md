@@ -151,3 +151,6 @@ matcher.match_colors("moss green")
 custom = ColorMatcher("xx", color_palettes=[{"#FF0000": "rood", "#0000FF": "blauw"}])
 custom.match_colors("maak het rood")     # matches "rood"
 ```
+
+---
+[Home](../README.md) · [Color description semantics →](keywords.md)
