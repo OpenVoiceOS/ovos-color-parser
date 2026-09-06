@@ -1,1 +1,2 @@
 ovos-utils>=0.0.38
+rapidfuzz>=3.0.0
