@@ -24,6 +24,9 @@ pip install ovos-color-parser
 uv pip install ovos-color-parser
 ```
 
+`rapidfuzz` is a required dependency: fuzzy color-description matching relies on it for
+speed, and installing without it makes matching orders of magnitude slower.
+
 ## 30-second quickstart
 
 ```python
