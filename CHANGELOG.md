@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a1) (2026-09-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.0a1...0.12.1a1)
+
+**Merged pull requests:**
+
+- fix: require rapidfuzz; the fuzzy\_match fallback hangs the suite and callers [\#126](https://github.com/OpenVoiceOS/ovos-color-parser/pull/126) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.12.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.0a1) (2026-09-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.3...0.12.0a1)
