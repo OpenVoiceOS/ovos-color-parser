@@ -13,28 +13,50 @@ subtag (`en`, `en-GB` → `en-US`). Unsupported languages make `color_from_descr
 | an-ES | Aragonese | 14 | no | no |
 | ar-SA | Arabic | 72 | yes | yes |
 | ast-ES | Asturian | 17 | no | no |
+| az-AZ | Azerbaijani | 43 | yes | no |
 | bg-BG | Bulgarian | 32 | no | no |
 | ca-ES | Catalan | 3421 | no | no |
 | cs-CZ | Czech | 54 | no | no |
 | da-DK | Danish | 14712 | yes | yes |
 | de-DE | German | 1548 | yes | no |
+| el-GR | Greek | 32 | yes | no |
 | en-US | English | 14712 | yes | yes |
 | es-ES | Spanish | 7250 | yes | no |
+| et-EE | Estonian | 87 | yes | no |
 | eu-ES | Basque | 8011 | yes | no |
+| fa-IR | Persian | 46 | yes | no |
+| fi-FI | Finnish | 94 | yes | no |
 | fr-FR | French | 14712 | yes | yes |
 | fy-NL | West Frisian | 15 | no | no |
+| gl-ES | Galician | 32 | yes | no |
+| he-IL | Hebrew | 44 | yes | no |
+| hi-IN | Hindi | 36 | yes | no |
 | hr-HR | Croatian | 30 | no | no |
+| hu-HU | Hungarian | 31 | yes | no |
+| id-ID | Indonesian | 44 | yes | no |
 | it-IT | Italian | 6820 | yes | no |
+| ja-JP | Japanese | 40 | yes | no |
 | kab-DZ | Kabyle | 12 | no | no |
+| ko-KR | Korean | 39 | yes | no |
+| ms-MY | Malay | 40 | yes | no |
+| mwl-PT | Mirandese | 15 | yes | no |
+| nb-NO | Norwegian Bokmål | 93 | yes | no |
 | nl-NL | Dutch | 101 | no | no |
+| nn-NO | Norwegian Nynorsk | 93 | yes | no |
 | oc-FR | Occitan | 23 | yes | no |
 | pl-PL | Polish | 173 | no | no |
 | pt-BR | Portuguese | 8238 | yes | yes |
 | ro-RO | Romanian | 101 | yes | no |
 | ru-RU | Russian | 216 | no | no |
 | sk-SK | Slovak | 35 | no | no |
+| sl-SI | Slovenian | 28 | yes | no |
+| sv-SE | Swedish | 94 | yes | no |
+| tr-TR | Turkish | 50 | yes | no |
+| uk-UA | Ukrainian | 29 | yes | no |
+| vi-VN | Vietnamese | 38 | yes | no |
+| zh-CN | Chinese | 44 | yes | no |
 
-23 locales. `color_from_description` accepts any BCP-47 tag and resolves it to the closest
+45 locales. `color_from_description` accepts any BCP-47 tag and resolves it to the closest
 bundled locale.
 
 ¹ `color_descriptors.json`: saturation/brightness/temperature/opacity adjectives ("dark", "vivid",
