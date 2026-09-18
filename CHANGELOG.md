@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a2) (2026-09-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a1...0.12.1a2)
+
+**Merged pull requests:**
+
+- docs: correct locale count from 23 to 45 [\#123](https://github.com/OpenVoiceOS/ovos-color-parser/pull/123) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.12.1a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a1) (2026-09-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.0a1...0.12.1a1)
