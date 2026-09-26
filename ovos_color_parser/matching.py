@@ -3,8 +3,11 @@ import math
 import os.path
 import re
 import threading
+from dataclasses import dataclass
+from functools import lru_cache
 from typing import List, Optional, Dict, Tuple, Iterable
 
+from ovos_utils.log import LOG
 from ovos_utils.parse import fuzzy_match, MatchStrategy
 
 from ovos_color_parser.core import (srgb8_to_linear, linear_to_srgb8, blend_linear,
@@ -377,6 +380,213 @@ def _adjust_color_attributes(color: Color, description: str, adjectives: dict,
         color.b = min(255, color.b + 26)
 
     return _fit(color, gamut)
+
+
+@dataclass(frozen=True)
+class ColorSpan:
+    """A colour expression located inside a piece of text.
+
+    ``start``/``end`` are code-point offsets into the original text (half-open,
+    ``text[start:end] == surface``), so callers never need to re-tokenise to
+    place the match back in context.
+    """
+    start: int
+    end: int
+    surface: str
+    hex: str
+    name: str
+
+
+_SPAN_WORD_RE = re.compile(r"\w+", re.UNICODE)
+_MAX_SPAN_WORDS = 3
+_HEX_RE = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
+_warned_bad_hex = set()
+
+# CJK Unified Ideographs (+ extension/compatibility blocks) and the Japanese
+# kana syllabaries: the scripts this package's tables use that are written
+# with no space between words. Every other script in the vocabulary (Latin,
+# Cyrillic, Greek, Arabic, Hebrew, Hangul...) is space-separated, so its names
+# still need the word-boundary tokenizer to reject a colour word embedded
+# inside a longer word ("red" inside "redirect"). Hangul is spaced by Korean
+# orthography and stays on that word-token path too; an unspaced Korean
+# compound ("빨강자동차", "red car" written as one run) is not
+# split into words and so is not matched, the same limitation Latin scripts
+# have without a token to anchor a window on.
+_UNSPACED_SCRIPT_RE = re.compile(
+    "^[぀-ゟ゠-ヿ㐀-䶿一-鿿豈-﫿]+$"
+)
+
+# Ideographs only (no kana): used to decide whether a one-ideograph table
+# entry sits next to another ideograph. There is no CJK word segmenter here,
+# so a single ideograph is treated as ambiguous only against another
+# ideograph, never against kana, punctuation, Latin, digits, whitespace or a
+# string edge, all of which are boundaries: "赤い車" matches "赤" because
+# い (kana) follows; "赤字" does not because 字 (ideograph) follows. This
+# still lets a genuine kana-suffixed word like "赤ちゃん" ("baby") match
+# "赤" the same way "赤い" ("red") does -- the two are not distinguishable
+# without real segmentation, and this rule does not attempt to. An entry of
+# two or more ideographs has no such restriction and matches unconditionally,
+# anywhere it occurs, including inside a longer compound the entry is not a
+# semantic part of ("蛋白色素", "pigment protein", a biology term, yields a
+# "白色" span because those two characters occur inside it).
+_CJK_IDEOGRAPH_RE = re.compile("[㐀-䶿一-鿿豈-﫿]")
+
+
+def _is_unspaced_script_name(name: str) -> bool:
+    """Whether ``name`` is written entirely in a script with no inter-word
+    whitespace, so it must be matched as a plain substring instead of via the
+    token windows below (there is no token to anchor a window on)."""
+    return bool(_UNSPACED_SCRIPT_RE.fullmatch(name))
+
+
+def _normalize_hex(hex_str: str, lang: str) -> Optional[str]:
+    """3- or 6-digit hex -> lowercase ``#rrggbb``, or None for anything else.
+
+    A vocabulary file has been seen storing 3-digit shorthand (``#000``); the
+    spec requires the full 6-digit form, so shorthand is expanded and anything
+    that isn't valid hex at all is dropped rather than shipped malformed.
+    """
+    m = _HEX_RE.match(hex_str)
+    if not m:
+        key = (lang, hex_str)
+        if key not in _warned_bad_hex:
+            _warned_bad_hex.add(key)
+            LOG.warning(f"skipping malformed hex {hex_str!r} in {lang!r} color table")
+        return None
+    digits = m.group(1)
+    if len(digits) == 3:
+        digits = "".join(c * 2 for c in digits)
+    return f"#{digits.lower()}"
+
+
+def _norm_substring(k: str) -> str:
+    """Like :func:`_norm` but never strips leading/trailing characters.
+
+    The substring scan below tries raw text slices of every length at a given
+    start position; if a slice one character too long got trimmed back down to
+    a stored key by ``str.strip``, it would report a surface that includes a
+    trailing space or punctuation mark the matched name never had.
+    """
+    return _strip_arabic_diacritics(k).lower().replace("-", " ").replace("_", " ")
+
+
+def _is_word_gap(gap: str) -> bool:
+    """Two tokens still form one phrase across whitespace or a hyphen/underscore
+    ("off-white"), matching how :func:`_norm` folds those into the same word
+    for every other lookup in this module."""
+    return gap.isspace() or gap in ("-", "_")
+
+
+@lru_cache(maxsize=None)
+def _color_name_maps(lang: str) -> Tuple[Dict[str, Tuple[str, str]], Dict[str, Tuple[str, str]]]:
+    """Normalized color name -> (hex, canonical name), split into the names
+    matched via word-token windows and the names matched as raw substrings
+    (see :func:`_is_unspaced_script_name`).
+
+    Palettes are folded in :func:`iter_color_dicts` order, so a later, more
+    specific palette silently overrides an earlier one on a name collision,
+    exactly like the substring automaton does.
+    """
+    word_map: Dict[str, Tuple[str, str]] = {}
+    substring_map: Dict[str, Tuple[str, str]] = {}
+    for colorlist in iter_color_dicts(lang):
+        for hex_str, name in colorlist.items():
+            hex_norm = _normalize_hex(hex_str, lang)
+            if hex_norm is None:
+                continue
+            if _is_unspaced_script_name(name):
+                substring_map[_norm_substring(name)] = (hex_norm, name)
+            else:
+                word_map[_norm(name)] = (hex_norm, name)
+    return word_map, substring_map
+
+
+def _substring_spans(text: str, substring_map: Dict[str, Tuple[str, str]]) -> List[ColorSpan]:
+    """Greedy longest-match-first scan for names in scripts that use no
+    inter-word whitespace, so there is no token to anchor a window on.
+
+    A one-ideograph entry is only accepted when neither neighbouring
+    character is itself an ideograph (see :data:`_CJK_IDEOGRAPH_RE`); an
+    entry of two or more ideographs is accepted unconditionally.
+    """
+    spans: List[ColorSpan] = []
+    if not substring_map:
+        return spans
+    max_len = max(len(k) for k in substring_map)
+    n = len(text)
+    i = 0
+    while i < n:
+        for length in range(min(max_len, n - i), 0, -1):
+            surface = text[i:i + length]
+            hit = substring_map.get(_norm_substring(surface))
+            if hit is None:
+                continue
+            hex_str, name = hit
+            if length == 1 and _CJK_IDEOGRAPH_RE.fullmatch(name):
+                prev_char = text[i - 1] if i > 0 else ""
+                next_char = text[i + 1] if i + 1 < n else ""
+                if _CJK_IDEOGRAPH_RE.match(prev_char) or _CJK_IDEOGRAPH_RE.match(next_char):
+                    continue
+            spans.append(ColorSpan(i, i + length, surface, hex_str, name))
+            i += length
+            break
+        else:
+            i += 1
+    return spans
+
+
+def extract_color_spans(text: str, lang: str = "en") -> List[ColorSpan]:
+    """Locate every colour expression in ``text`` and return its span.
+
+    This never fuzzy-matches: a typo'd colour name is not a colour span, only a
+    name the language's colour table knows exactly (case-folded, accent-
+    insensitive the same way the table itself is normalized) counts. Instead of
+    scanning the whole utterance the way :func:`color_from_description` does,
+    the text is tokenised with offsets and windows of one to three consecutive
+    words are looked up against the vocabulary; the longest window that
+    resolves wins, so a known modifier phrase ("light blue") is returned as one
+    span instead of the two spans "light" and "blue" would otherwise give (even
+    with extra whitespace between the words), a hyphenated table entry
+    ("off-white") is one span rather than a dropped "off" and a lone "white",
+    and a colour word buried inside an unrelated word ("redirect",
+    "greenhouse") never matches because the lookup is against whole tokens,
+    not substrings.
+
+    Names written in a script with no inter-word whitespace (Chinese,
+    Japanese kanji/kana) have no tokens to anchor a window on, so those are
+    matched as plain substrings instead (see :func:`_substring_spans` for the
+    one-ideograph disambiguation this requires). Hangul is spaced by Korean
+    orthography and stays on the token-window path, so an unspaced Korean
+    compound is not matched, the same limitation any spaced script has here.
+    """
+    word_map, substring_map = _color_name_maps(lang)
+    spans = _substring_spans(text, substring_map)
+
+    tokens = [(m.start(), m.end()) for m in _SPAN_WORD_RE.finditer(text)]
+    i = 0
+    while i < len(tokens):
+        max_words = min(_MAX_SPAN_WORDS, len(tokens) - i)
+        for size in range(max_words, 0, -1):
+            window = tokens[i:i + size]
+            if any(not _is_word_gap(text[window[j][1]:window[j + 1][0]])
+                   for j in range(len(window) - 1)):
+                continue
+            start, end = window[0][0], window[-1][1]
+            surface = text[start:end]
+            # a run of whitespace between words is one word-boundary, however
+            # wide, so the lookup key joins the tokens with a single space
+            # rather than normalizing the raw (possibly multi-space) surface
+            key = _norm(" ".join(text[t[0]:t[1]] for t in window))
+            hit = word_map.get(key)
+            if hit is not None:
+                hex_str, name = hit
+                spans.append(ColorSpan(start, end, surface, hex_str, name))
+                i += size
+                break
+        else:
+            i += 1
+    spans.sort(key=lambda s: s.start)
+    return spans
 
 
 def palette_from_description(description: str, lang: str = "en",
