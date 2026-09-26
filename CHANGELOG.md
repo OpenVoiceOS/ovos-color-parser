@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1a3](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a3) (2026-09-26)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a2...0.12.1a3)
+
+**Merged pull requests:**
+
+- chore\(ci\): drop the broken Dependabot config [\#129](https://github.com/OpenVoiceOS/ovos-color-parser/pull/129) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.1a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a2) (2026-09-18)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a1...0.12.1a2)
