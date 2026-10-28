@@ -483,9 +483,9 @@ def _color_name_maps(lang: str) -> Tuple[Dict[str, Tuple[str, str]], Dict[str, T
     matched via word-token windows and the names matched as raw substrings
     (see :func:`_is_unspaced_script_name`).
 
-    Palettes are folded in :func:`iter_color_dicts` order, so a later, more
-    specific palette silently overrides an earlier one on a name collision,
-    exactly like the substring automaton does.
+    Palettes are folded in :func:`iter_color_dicts` order, so the first
+    palette to define a name keeps it: a common palette is never overridden by
+    a niche catalog, exactly like the substring automaton.
     """
     word_map: Dict[str, Tuple[str, str]] = {}
     substring_map: Dict[str, Tuple[str, str]] = {}
@@ -495,9 +495,9 @@ def _color_name_maps(lang: str) -> Tuple[Dict[str, Tuple[str, str]], Dict[str, T
             if hex_norm is None:
                 continue
             if _is_unspaced_script_name(name):
-                substring_map[_norm_substring(name)] = (hex_norm, name)
+                substring_map.setdefault(_norm_substring(name), (hex_norm, name))
             else:
-                word_map[_norm(name)] = (hex_norm, name)
+                word_map.setdefault(_norm(name), (hex_norm, name))
     return word_map, substring_map
 
 
