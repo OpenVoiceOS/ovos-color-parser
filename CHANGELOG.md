@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.2a1) (2026-10-28)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a3...0.12.2a1)
+
+**Merged pull requests:**
+
+- fix: let the common palette win a color name collision [\#132](https://github.com/OpenVoiceOS/ovos-color-parser/pull/132) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.1a3](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a3) (2026-09-26)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a2...0.12.1a3)
