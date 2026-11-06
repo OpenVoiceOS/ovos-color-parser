@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.3a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.3a1) (2026-11-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.2a1...0.12.3a1)
+
+**Merged pull requests:**
+
+- fix: read 4 and 8 digit hex codes with an alpha channel [\#134](https://github.com/OpenVoiceOS/ovos-color-parser/pull/134) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.2a1) (2026-10-28)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a3...0.12.2a1)
