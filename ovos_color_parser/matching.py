@@ -738,15 +738,12 @@ def get_contrasting_black_or_white(hex_code: str) -> sRGBAColor:
 
 
 def is_hex_code_valid(hex_code: str) -> bool:
-    """Validate whether the input string is a valid 3 or 6 digit hex color code."""
-    hex_code = hex_code.lstrip("#")
-    if len(hex_code) not in (3, 6):
-        return False
-    try:
-        int(hex_code, 16)
-    except ValueError:
-        return False
-    return True
+    """Validate whether the input string is a valid 3 or 6 digit hex color code.
+
+    One optional leading ``#``, then ASCII hex digits only: ``int(x, 16)``
+    also takes spaces, signs, underscores and non-ASCII digits."""
+    hex_code = hex_code.removeprefix("#")
+    return len(hex_code) in (3, 6) and re.fullmatch(r"[0-9a-fA-F]+", hex_code) is not None
 
 
 def rgb_to_cmyk(r, g, b, cmyk_scale=100, rgb_scale=255) -> Tuple[float, float, float, float]:

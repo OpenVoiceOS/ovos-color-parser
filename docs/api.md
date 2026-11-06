@@ -95,7 +95,7 @@ Black or white, whichever contrasts best with the given background color (YIQ he
 
 ### `is_hex_code_valid(hex_code) -> bool`
 
-`True` for 3- or 6-digit hex codes, with or without a leading `#`.
+`True` for 3- or 6-digit hex codes of the ASCII digits 0-9 and letters a-f, with or without one leading `#`.
 
 ### `rgb_to_cmyk(r, g, b) -> (c, m, y, k)` / `cmyk_to_rgb(c, m, y, k) -> (r, g, b)`
 
