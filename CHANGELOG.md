@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.4a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.4a1) (2026-11-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.3a1...0.12.4a1)
+
+**Merged pull requests:**
+
+- fix: accept only ASCII hex digits in is\_hex\_code\_valid [\#136](https://github.com/OpenVoiceOS/ovos-color-parser/pull/136) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.3a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.3a1) (2026-11-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.2a1...0.12.3a1)
