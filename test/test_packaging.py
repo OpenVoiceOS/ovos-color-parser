@@ -66,5 +66,17 @@ class TestPackagedResources(unittest.TestCase):
         self.assertEqual(missing, [], "res files not packaged")
 
 
+class TestHardDependencies(unittest.TestCase):
+    """rapidfuzz is required: without it, ovos_utils.parse.fuzzy_match falls
+    back to difflib.SequenceMatcher, which is orders of magnitude slower and
+    turns the full test suite into a multi-minute hang."""
+
+    def test_rapidfuzz_is_a_declared_dependency(self):
+        req_file = Path(__file__).parent.parent / "requirements.txt"
+        requirements = req_file.read_text().lower()
+        self.assertIn("rapidfuzz", requirements,
+                      "rapidfuzz must be a hard dependency, not optional")
+
+
 if __name__ == "__main__":
     unittest.main()
