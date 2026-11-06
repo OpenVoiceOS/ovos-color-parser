@@ -42,7 +42,7 @@ class TestHexAlpha(unittest.TestCase):
         # int(x, 16) takes a space, a sign and other Unicode digits; a hex
         # code holds 0-9 and a-f only
         for hex_code in ("ff0000 8", "ff00 0", "+f+f+f", "#ff0000-1",
-                         "#\u0661\u0662\u0663", " fff", "#ff_f00"):
+                         "#\u0661\u0662\u0663", " fff", "#ff_f00", "+fffff"):
             with self.subTest(hex_code=hex_code):
                 with self.assertRaisesRegex(ValueError, r"^Invalid hex string "):
                     sRGBAColor.from_hex_str(hex_code)
