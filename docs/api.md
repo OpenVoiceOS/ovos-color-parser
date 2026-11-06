@@ -57,7 +57,7 @@ instance to match against a fixed language or injected custom vocabularies
 
 | Class | Fields | Notes |
 |---|---|---|
-| `sRGBAColor` | `r, g, b` (0-255), `a` (0-255), `name`, `description` | `.hex_str`, `.from_hex_str()` (3- or 6-digit), `.as_hls`, `.as_hsv`, `.as_spectral_color` |
+| `sRGBAColor` | `r, g, b` (0-255), `a` (0-255), `name`, `description` | `.hex_str`, `.from_hex_str()` (3, 4, 6 or 8 digits; the 4 and 8 digit forms carry alpha, CSS Color 4 §5.2), `.as_hls`, `.as_hsv`, `.as_spectral_color` |
 | `HSVColor` | `h` (0-360), `s, v` (0-1) | `.as_rgb`, `.as_hls`, `.hex_str`, `.from_hex_str()` |
 | `HLSColor` | `h` (0-360), `l, s` (0-1) | `.as_rgb`, `.as_hsv`, `.hex_str`, `.from_hex_str()` |
 | `SpectralColor` | `wavelen_nm_min`, `wavelen_nm_max` | wavelength (nm) based; `.as_rgb` etc. |

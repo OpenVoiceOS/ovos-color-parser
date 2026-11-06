@@ -1,3 +1,4 @@
+import re
 from colorsys import rgb_to_hsv, hsv_to_rgb, hls_to_rgb, rgb_to_hls
 from dataclasses import dataclass
 from typing import List, Optional, Union
@@ -59,12 +60,13 @@ class sRGBAColor:
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBAColor':
         # CSS Color 4, section 5.2: 3, 4, 6 or 8 digits, the last pair (or
         # digit) of the 8 (or 4) digit forms being the alpha channel
+        # int(x, 16) also takes spaces, signs and non-ASCII digits
         if hex_str.startswith('#'):
             hex_str = hex_str[1:]
+        if len(hex_str) not in (3, 4, 6, 8) or not re.fullmatch(r"[0-9a-fA-F]+", hex_str):
+            raise ValueError(f"Invalid hex string {hex_str}")
         if len(hex_str) in (3, 4):
             hex_str = "".join(digit * 2 for digit in hex_str)
-        elif len(hex_str) not in (6, 8):
-            raise ValueError(f"Invalid hex string {hex_str}")
         r = int(hex_str[0:2], 16)
         g = int(hex_str[2:4], 16)
         b = int(hex_str[4:6], 16)

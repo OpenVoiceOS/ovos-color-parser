@@ -38,6 +38,21 @@ class TestHexAlpha(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, r"^Invalid hex string 12345$"):
             sRGBAColor.from_hex_str("#12345")
 
+    def test_only_ascii_hex_digits(self):
+        # int(x, 16) takes a space, a sign and other Unicode digits; a hex
+        # code holds 0-9 and a-f only
+        for hex_code in ("ff0000 8", "ff00 0", "+f+f+f", "#ff0000-1",
+                         "#\u0661\u0662\u0663", " fff", "#ff_f00"):
+            with self.subTest(hex_code=hex_code):
+                with self.assertRaisesRegex(ValueError, r"^Invalid hex string "):
+                    sRGBAColor.from_hex_str(hex_code)
+
+    def test_case_and_hash_still_accepted(self):
+        for hex_code in ("#FF0000", "ff0000", "#f00", "F00F", "#Ff000080"):
+            with self.subTest(hex_code=hex_code):
+                c = sRGBAColor.from_hex_str(hex_code)
+                self.assertEqual((c.r, c.g, c.b), (255, 0, 0))
+
 
 if __name__ == "__main__":
     unittest.main()
