@@ -13,8 +13,9 @@ Parse a natural-language color description.
 - Applies modifier keywords from the language's descriptor list: saturation ("vivid", "muted"),
   brightness ("light", "dark"), temperature ("warm", "cool") and opacity ("opaque", "transparent" —
   applied to the alpha channel).
-- `cast_to_palette=True` returns the matched candidate closest to the averaged color instead of the
-  average itself, so the result is always a known, named color.
+- `cast_to_palette=True` returns a matched candidate instead of the average, so the result is always
+  a known, named color. A candidate whose name is the whole description wins (the common palette's
+  entry first). Otherwise the candidate closest to the averaged color wins.
 - `gamut` chooses how a computed color that leaves the sRGB gamut is resolved:
   `GamutPolicy.CLAMP` (per-channel, default), `GamutPolicy.MAP` (hue-preserving), or
   `GamutPolicy.REJECT`.
@@ -76,9 +77,10 @@ Bundled vocabularies: `EnglishColorTerms`, `NewtonSpectralColorTerms`, `ISCCNBSS
 
 Perceptual distance (CIEDE2000 over CIE L\*a\*b\*). Smaller is more similar.
 
-### `closest_color(color, color_opts) -> Color`
+### `closest_color(color, color_opts, name=None) -> Color`
 
-Return the option with the smallest `color_distance` to `color`.
+Return the option with the smallest `color_distance` to `color`. With `name`, the first option whose
+own name is that whole name wins before any distance is compared.
 
 ### `average_colors(colors, weights=None) -> HLSColor`
 

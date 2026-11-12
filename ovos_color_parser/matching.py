@@ -27,7 +27,18 @@ def color_distance(color_a: Color, color_b: Color) -> float:
                           (color_b.r, color_b.g, color_b.b))
 
 
-def closest_color(color: Color, color_opts: List[Color]) -> Color:
+def closest_color(color: Color, color_opts: List[Color],
+                  name: Optional[str] = None) -> Color:
+    """The option nearest to ``color``.
+
+    With ``name``, the first option whose own name is that whole name wins
+    before any distance is compared. The options come in palette priority
+    order, so the common palette's entry for a name wins, as in ``lookup_name``.
+    """
+    if name is not None:
+        for c in color_opts:
+            if c.name and _norm(c.name) == _norm(name):
+                return c if isinstance(c, sRGBAColor) else c.as_rgb
     color_opts = [c if isinstance(c, sRGBAColor) else c.as_rgb for c in color_opts]
     scores = {c: color_distance(color, c) for c in color_opts}
     return min(scores, key=lambda k: scores[k])
@@ -630,7 +641,7 @@ def color_from_description(description: str, lang: str = "en",
     # do not invent colors
     if cast_to_palette:
         #print(f"DEBUG: candidate colors: {[(_.name, _.hex_str) for _ in candidates]}")
-        c = closest_color(c, candidates)
+        c = closest_color(c, candidates, name=description)
         #print(f"DEBUG: closest candidate color: {c} {c.hex_str}")
 
     c.description = description
