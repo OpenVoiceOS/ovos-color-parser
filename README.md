@@ -8,8 +8,8 @@ bundled wordlists and color math.
 from ovos_color_parser import color_from_description
 
 c = color_from_description("dark red", lang="en")
-print(c.hex_str)   # "#3B1315"
-print(c.as_hls)    # HLSColor(h=357, l=0.153..., s=0.513..., ...)
+print(c.hex_str)   # "#400E10"
+print(c.as_hls)    # HLSColor(h=357.59..., l=0.152..., s=0.641..., ...)
 ```
 
 It ships as part of the OpenVoiceOS voice stack, but it is a standalone library first: nothing

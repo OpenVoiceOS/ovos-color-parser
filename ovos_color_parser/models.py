@@ -38,7 +38,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, l, s = rgb_to_hls(r, g, b)
-        return HLSColor(round(h * 360), l, min(1, s),
+        return HLSColor(h * 360, l, min(1, s),
                         name=self.name,
                         description=self.description)
 
@@ -48,7 +48,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, s, v = rgb_to_hsv(r, g, b)
-        return HSVColor(round(h * 360), s, v,
+        return HSVColor(h * 360, s, v,
                         name=self.name,
                         description=self.description)
 
@@ -83,7 +83,7 @@ class sRGBAColor:
 
 @dataclass
 class HSVColor:
-    h: int
+    h: float
     s: float = 0.5
     v: float = 0.5
     name: Optional[str] = None
@@ -122,7 +122,7 @@ class HSVColor:
 
 @dataclass
 class HLSColor:
-    h: int
+    h: float
     l: float = 0.5
     s: float = 0.5
     name: Optional[str] = None
@@ -274,8 +274,8 @@ class SpectralColor:
 
 @dataclass
 class HueRange:
-    min_hue_approximation: int
-    max_hue_approximation: int
+    min_hue_approximation: float
+    max_hue_approximation: float
     name: Optional[str] = None
     hex_approximation: Optional[str] = None
 
@@ -331,7 +331,7 @@ class HueRange:
 
     # Convert hue range to wavelength range in nanometers
     @staticmethod
-    def _hue_to_wavelength(hue: int, palette: 'SpectralColorPalette') -> int:
+    def _hue_to_wavelength(hue: float, palette: 'SpectralColorPalette') -> int:
         for color_term in palette.colors:
             hue_range = color_term.hue_approximation
             wavelen_min = color_term.wavelen_nm_min
