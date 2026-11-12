@@ -1,9 +1,9 @@
 """A basic colour word casts to the colour that en-US gives its English term.
 
-it-IT, da-DK and es-ES translate res/en-US/colors.json entry by entry, and a
-cast returns the first entry whose name is the whole description. Each word
-below is the locale's own translation of the en-US entry for the bare English
-term (for example it-IT "#FFFFFF": "Bianco" and en-US "#FFFFFF": "White").
+it-IT, da-DK, es-ES and eu-ES translate res/en-US/colors.json entry by entry,
+and a cast returns the first entry whose name is the whole description. Each
+word below is the locale's own translation of the en-US entry for the bare
+English term (for example it-IT "#FFFFFF": "Bianco" and en-US "#FFFFFF": "White").
 The expected hex is the first entry with that English name in en-US
 colors.json, which is what the en-US cast of the English word returns. It is
 read from the en-US file, not from the parser.
@@ -42,6 +42,7 @@ def cast(word, lang):
     ("marrone", "Brown"),
     ("grigio", "Grey"),
     ("rosa", "Pink"),
+    ("viola", "Purple"),
 ])
 def test_italian_basic_words(word, english):
     assert cast(word, "it-IT") == en_us_hex(english)
@@ -57,6 +58,8 @@ def test_italian_basic_words(word, english):
     ("brun", "Brown"),
     ("grå", "Gray"),
     ("lyserød", "Pink"),
+    ("lilla", "Purple"),
+    ("orange", "Orange"),
 ])
 def test_danish_basic_words(word, english):
     assert cast(word, "da-DK") == en_us_hex(english)
@@ -72,6 +75,16 @@ def test_danish_basic_words(word, english):
     ("marrón", "Brown"),
     ("gris", "Grey"),
     ("rosa", "Pink"),
+    ("amarillo", "Yellow"),
+    ("naranja", "Orange"),
+    ("púrpura", "Purple"),
 ])
 def test_spanish_basic_words(word, english):
     assert cast(word, "es-ES") == en_us_hex(english)
+
+
+@pytest.mark.parametrize("word, english", [
+    ("laranja", "Orange"),
+])
+def test_basque_basic_words(word, english):
+    assert cast(word, "eu-ES") == en_us_hex(english)
