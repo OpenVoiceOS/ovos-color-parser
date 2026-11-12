@@ -13,8 +13,10 @@ Parse a natural-language color description.
 - Applies modifier keywords from the language's descriptor list: saturation ("vivid", "muted"),
   brightness ("light", "dark"), temperature ("warm", "cool") and opacity ("opaque", "transparent" —
   applied to the alpha channel).
-- `cast_to_palette=True` returns the matched candidate closest to the averaged color instead of the
-  average itself, so the result is always a known, named color.
+- `cast_to_palette=True` returns a matched candidate instead of the average, so the result is always
+  a known, named color. A candidate whose name is the whole description wins (the common palette's
+  entry first, and inside one file the first entry). Otherwise the candidate closest to the
+  averaged color wins.
 - `gamut` chooses how a computed color that leaves the sRGB gamut is resolved:
   `GamutPolicy.CLAMP` (per-channel, default), `GamutPolicy.MAP` (hue-preserving), or
   `GamutPolicy.REJECT`.
@@ -57,7 +59,7 @@ instance to match against a fixed language or injected custom vocabularies
 
 | Class | Fields | Notes |
 |---|---|---|
-| `sRGBAColor` | `r, g, b` (0-255), `a` (0-255), `name`, `description` | `.hex_str`, `.from_hex_str()` (3- or 6-digit), `.as_hls`, `.as_hsv`, `.as_spectral_color` |
+| `sRGBAColor` | `r, g, b` (0-255), `a` (0-255), `name`, `description` | `.hex_str`, `.from_hex_str()` (3, 4, 6 or 8 digits; the 4 and 8 digit forms carry alpha, CSS Color 4 §5.2), `.as_hls`, `.as_hsv`, `.as_spectral_color` |
 | `HSVColor` | `h` (0-360), `s, v` (0-1) | `.as_rgb`, `.as_hls`, `.hex_str`, `.from_hex_str()` |
 | `HLSColor` | `h` (0-360), `l, s` (0-1) | `.as_rgb`, `.as_hsv`, `.hex_str`, `.from_hex_str()` |
 | `SpectralColor` | `wavelen_nm_min`, `wavelen_nm_max` | wavelength (nm) based; `.as_rgb` etc. |
@@ -76,9 +78,10 @@ Bundled vocabularies: `EnglishColorTerms`, `NewtonSpectralColorTerms`, `ISCCNBSS
 
 Perceptual distance (CIEDE2000 over CIE L\*a\*b\*). Smaller is more similar.
 
-### `closest_color(color, color_opts) -> Color`
+### `closest_color(color, color_opts, name=None) -> Color`
 
-Return the option with the smallest `color_distance` to `color`.
+Return the option with the smallest `color_distance` to `color`. With `name`, the first option whose
+own name is that whole name wins before any distance is compared.
 
 ### `average_colors(colors, weights=None) -> HLSColor`
 
@@ -95,7 +98,7 @@ Black or white, whichever contrasts best with the given background color (YIQ he
 
 ### `is_hex_code_valid(hex_code) -> bool`
 
-`True` for 3- or 6-digit hex codes, with or without a leading `#`.
+`True` for 3- or 6-digit hex codes of the ASCII digits 0-9 and letters a-f, with or without one leading `#`.
 
 ### `rgb_to_cmyk(r, g, b) -> (c, m, y, k)` / `cmyk_to_rgb(c, m, y, k) -> (r, g, b)`
 

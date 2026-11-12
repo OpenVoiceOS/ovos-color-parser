@@ -1,3 +1,4 @@
+import re
 from colorsys import rgb_to_hsv, hsv_to_rgb, hls_to_rgb, rgb_to_hls
 from dataclasses import dataclass
 from typing import List, Optional, Union
@@ -37,7 +38,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, l, s = rgb_to_hls(r, g, b)
-        return HLSColor(round(h * 360), l, min(1, s),
+        return HLSColor(h * 360, l, min(1, s),
                         name=self.name,
                         description=self.description)
 
@@ -47,7 +48,7 @@ class sRGBAColor:
         g = self.g / 255
         b = self.b / 255
         h, s, v = rgb_to_hsv(r, g, b)
-        return HSVColor(round(h * 360), s, v,
+        return HSVColor(h * 360, s, v,
                         name=self.name,
                         description=self.description)
 
@@ -57,19 +58,20 @@ class sRGBAColor:
 
     @staticmethod
     def from_hex_str(hex_str: str, name: Optional[str] = None, description: Optional[str] = None) -> 'sRGBAColor':
+        # CSS Color 4, section 5.2: 3, 4, 6 or 8 digits, the last pair (or
+        # digit) of the 8 (or 4) digit forms being the alpha channel
+        # int(x, 16) also takes spaces, signs and non-ASCII digits
         if hex_str.startswith('#'):
             hex_str = hex_str[1:]
-        if len(hex_str) == 6:
-            r = int(hex_str[0:2], 16)
-            g = int(hex_str[2:4], 16)
-            b = int(hex_str[4:6], 16)
-        elif len(hex_str) == 3:
-            r = int(hex_str[0:1] * 2, 16)
-            g = int(hex_str[1:2] * 2, 16)
-            b = int(hex_str[2:3] * 2, 16)
-        else:
-            raise ValueError(f"Invalid hex sting {hex_str}")
-        return sRGBAColor(r, g, b, name=name, description=description)
+        if len(hex_str) not in (3, 4, 6, 8) or not re.fullmatch(r"[0-9a-fA-F]+", hex_str):
+            raise ValueError(f"Invalid hex string {hex_str}")
+        if len(hex_str) in (3, 4):
+            hex_str = "".join(digit * 2 for digit in hex_str)
+        r = int(hex_str[0:2], 16)
+        g = int(hex_str[2:4], 16)
+        b = int(hex_str[4:6], 16)
+        a = int(hex_str[6:8], 16) if len(hex_str) == 8 else 255
+        return sRGBAColor(r, g, b, a, name=name, description=description)
 
     def __post_init__(self):
         # Enforce channel values between 0 and 255
@@ -81,7 +83,7 @@ class sRGBAColor:
 
 @dataclass
 class HSVColor:
-    h: int
+    h: float
     s: float = 0.5
     v: float = 0.5
     name: Optional[str] = None
@@ -120,7 +122,7 @@ class HSVColor:
 
 @dataclass
 class HLSColor:
-    h: int
+    h: float
     l: float = 0.5
     s: float = 0.5
     name: Optional[str] = None
@@ -272,8 +274,8 @@ class SpectralColor:
 
 @dataclass
 class HueRange:
-    min_hue_approximation: int
-    max_hue_approximation: int
+    min_hue_approximation: float
+    max_hue_approximation: float
     name: Optional[str] = None
     hex_approximation: Optional[str] = None
 
@@ -329,7 +331,7 @@ class HueRange:
 
     # Convert hue range to wavelength range in nanometers
     @staticmethod
-    def _hue_to_wavelength(hue: int, palette: 'SpectralColorPalette') -> int:
+    def _hue_to_wavelength(hue: float, palette: 'SpectralColorPalette') -> int:
         for color_term in palette.colors:
             hue_range = color_term.hue_approximation
             wavelen_min = color_term.wavelen_nm_min

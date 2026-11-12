@@ -34,12 +34,13 @@ match in linear light:
 color_from_description("red").hex_str    # "#B84D54"
 ```
 
-Pass `cast_to_palette=True` to snap the result to the closest matched named color instead of the
-blend, so the output is always a real, named entry:
+Pass `cast_to_palette=True` to snap the result to a matched named color instead of the blend, so
+the output is always a real, named entry. An entry whose name is the whole description wins;
+otherwise the entry closest to the blend wins:
 
 ```python
 c = color_from_description("red", cast_to_palette=True)
-print(c.name, c.hex_str)                 # "Dusty Red" "#..."
+print(c.name, c.hex_str)                 # "Red" "#FF0000"
 ```
 
 ## Modifiers

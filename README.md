@@ -1,15 +1,15 @@
 # OVOS Color Parser
 
 Turn natural-language color descriptions into color objects, and color objects back into
-names, in 23 languages. It is pure Python, needs no network access and no ML model. It uses
+names, in 45 languages. It is pure Python, needs no network access and no ML model. It uses
 bundled wordlists and color math.
 
 ```python
 from ovos_color_parser import color_from_description
 
 c = color_from_description("dark red", lang="en")
-print(c.hex_str)   # "#3B1315"
-print(c.as_hls)    # HLSColor(h=357, l=0.153..., s=0.513..., ...)
+print(c.hex_str)   # "#400E10"
+print(c.as_hls)    # HLSColor(h=357.59..., l=0.152..., s=0.641..., ...)
 ```
 
 It ships as part of the OpenVoiceOS voice stack, but it is a standalone library first: nothing
@@ -23,6 +23,9 @@ pip install ovos-color-parser
 # or, with uv:
 uv pip install ovos-color-parser
 ```
+
+`rapidfuzz` is a required dependency: fuzzy color-description matching relies on it for
+speed, and installing without it makes matching orders of magnitude slower.
 
 ## 30-second quickstart
 
@@ -129,11 +132,14 @@ def handle_set_color(self, message):
 
 ## Supported languages
 
-23 locales: Aragonese, Arabic, Asturian, Basque, Bulgarian, Catalan, Croatian, Czech, Danish,
-Dutch, English, French, German, Italian, Kabyle, Occitan, Polish, Portuguese, Romanian, Russian,
-Slovak, Spanish and West Frisian. Any BCP-47 tag resolves to the closest bundled locale, for
-example `en-GB` resolves to `en-US`. The per-language feature matrix, with entry counts and
-modifier and object support, is in [docs/languages.md](docs/languages.md).
+45 locales: Aragonese, Arabic, Asturian, Azerbaijani, Basque, Bulgarian, Catalan, Chinese,
+Croatian, Czech, Danish, Dutch, English, Estonian, Finnish, French, Galician, German, Greek,
+Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Kabyle, Korean, Malay, Mirandese,
+Norwegian Bokmål, Norwegian Nynorsk, Occitan, Persian, Polish, Portuguese, Romanian, Russian,
+Slovak, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese and West Frisian. Any BCP-47
+tag resolves to the closest bundled locale, for example `en-GB` resolves to `en-US`. The
+per-language feature matrix, with entry counts and modifier and object support, is in
+[docs/languages.md](docs/languages.md).
 
 ## Documentation
 
@@ -147,7 +153,7 @@ modifier and object support, is in [docs/languages.md](docs/languages.md).
 
 - [API reference](docs/api.md)
 
-- [Language support](docs/languages.md): the 23 locales and their per-language vocabulary
+- [Language support](docs/languages.md): the 45 locales and their per-language vocabulary
 
 - [Extending](docs/extending.md): custom wordlists, adding a language, integration patterns
 
