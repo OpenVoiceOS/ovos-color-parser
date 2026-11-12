@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.5a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.5a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.4a1...0.12.5a1)
+
+**Merged pull requests:**
+
+- fix: keep the fraction of a degree in the hue of as\_hls and as\_hsv [\#138](https://github.com/OpenVoiceOS/ovos-color-parser/pull/138) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.4a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.4a1) (2026-11-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.3a1...0.12.4a1)
