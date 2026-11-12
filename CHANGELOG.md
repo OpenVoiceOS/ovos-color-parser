@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.7a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.7a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.6a1...0.12.7a1)
+
+**Merged pull requests:**
+
+- fix: order translated colors.json so basic colour words cast to their basic colour [\#142](https://github.com/OpenVoiceOS/ovos-color-parser/pull/142) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.6a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.6a1) (2026-11-12)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.5a1...0.12.6a1)
