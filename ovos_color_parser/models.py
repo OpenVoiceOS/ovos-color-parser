@@ -274,8 +274,8 @@ class SpectralColor:
 
 @dataclass
 class HueRange:
-    min_hue_approximation: int
-    max_hue_approximation: int
+    min_hue_approximation: float
+    max_hue_approximation: float
     name: Optional[str] = None
     hex_approximation: Optional[str] = None
 
@@ -331,7 +331,7 @@ class HueRange:
 
     # Convert hue range to wavelength range in nanometers
     @staticmethod
-    def _hue_to_wavelength(hue: int, palette: 'SpectralColorPalette') -> int:
+    def _hue_to_wavelength(hue: float, palette: 'SpectralColorPalette') -> int:
         for color_term in palette.colors:
             hue_range = color_term.hue_approximation
             wavelen_min = color_term.wavelen_nm_min
