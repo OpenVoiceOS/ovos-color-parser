@@ -12,6 +12,11 @@ English has two spellings of grey, and en-US gives each one its own first
 entry. The expected entry is the first of the two in en-US order that the
 locale calls by its bare word: es-ES calls "#808080" "Cenizo" and it-IT calls
 it "Grigio 50%", so both cast to the "Grey" entry.
+
+Italian "marrone" is not the en-US "Brown". it.wikipedia "Marrone" gives
+#804000 (128, 64, 0) in its infobox and lists #A52A2A only as "Rosso Marrone",
+the web colour Brown. The hand-picked it-IT entry "Marrone" #964B00 comes first
+and is the nearer of the two to #804000.
 """
 import json
 import os
@@ -39,13 +44,24 @@ def cast(word, lang):
     ("rosso", "Red"),
     ("verde", "Green"),
     ("blu", "Blue"),
-    ("marrone", "Brown"),
     ("grigio", "Grey"),
     ("rosa", "Pink"),
     ("viola", "Purple"),
 ])
 def test_italian_basic_words(word, english):
     assert cast(word, "it-IT") == en_us_hex(english)
+
+
+def rgb_distance(a, b):
+    a, b = a.lstrip("#"), b.lstrip("#")
+    return sum((int(a[i:i + 2], 16) - int(b[i:i + 2], 16)) ** 2 for i in (0, 2, 4)) ** 0.5
+
+
+def test_italian_marrone_is_the_wikipedia_marrone():
+    wikipedia_marrone = "#804000"
+    got = cast("marrone", "it-IT")
+    assert got == "#964B00"
+    assert rgb_distance(got, wikipedia_marrone) < rgb_distance(en_us_hex("Brown"), wikipedia_marrone)
 
 
 @pytest.mark.parametrize("word, english", [

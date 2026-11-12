@@ -13,6 +13,13 @@ such as "verde" casts to. For each translated file, this script:
    of the entries that carry that word. The translation of a modified name
    ("Artichoke green") can be the bare word ("Grøn"); this step stops such an
    entry from going in front of the entry for the basic term itself ("Green").
+3. puts the hand-picked entries that ``order_locale_colors_first.json`` lists for
+   the locale in front of all other entries, in the listed order. For it-IT these
+   are the 247 entries of the hand-written Italian file, which name colours by
+   Italian usage where a translation of the en-US name does not. For example,
+   it.wikipedia "Marrone" gives #804000 (128, 64, 0) for marrone and lists
+   #A52A2A only as "Rosso Marrone", the web colour Brown. The hand-picked
+   "Marrone" #964B00 is 25 RGB units (Euclidean) from #804000, and #A52A2A is 60.
 
 The basic colour terms of English are the eleven of Berlin and Kay (1969),
 "Basic Color Terms: Their Universality and Evolution", with both spellings of grey.
@@ -30,9 +37,10 @@ RES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 BASIC_TERMS = {"white", "black", "red", "green", "yellow", "blue", "brown",
                "purple", "pink", "orange", "grey"}
 MIN_SHARED = 0.9
+FIRST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "order_locale_colors_first.json")
 
 
-def ordered_keys(colors: dict, reference: dict) -> list:
+def ordered_keys(colors: dict, reference: dict, first: list = ()) -> list:
     keys = [h for h in reference if h in colors]
     keys += [h for h in colors if h not in reference]
     by_term = {}
@@ -46,7 +54,7 @@ def ordered_keys(colors: dict, reference: dict) -> list:
         names = [_norm(colors[h]) for h in entries]
         word = max(names, key=lambda n: (names.count(n), -names.index(n)))
         heads[word] = entries[names.index(word)]
-    result = {}
+    result = dict.fromkeys(h for h in first if h in colors)
     for h in keys:
         result.setdefault(heads.get(_norm(colors[h]), h))
         result.setdefault(h)
@@ -55,6 +63,8 @@ def ordered_keys(colors: dict, reference: dict) -> list:
 
 def main() -> int:
     reference = json.load(open(os.path.join(RES, "en-US", "colors.json"), encoding="utf-8"))
+    with open(FIRST, encoding="utf-8") as f:
+        first = json.load(f)
     for lang in sorted(os.listdir(RES)):
         path = os.path.join(RES, lang, "colors.json")
         if lang == "en-US" or not os.path.isfile(path):
@@ -64,7 +74,7 @@ def main() -> int:
         colors = json.loads(text)
         if sum(h in colors for h in reference) < MIN_SHARED * len(reference):
             continue
-        keys = ordered_keys(colors, reference)
+        keys = ordered_keys(colors, reference, first.get(lang, []))
         assert sorted(keys) == sorted(colors), lang
         unmatched = sum(h not in reference for h in colors)
         print(f"{lang}: {len(colors)} entries in, {len(keys)} out, {unmatched} with no en-US entry")
