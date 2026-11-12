@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.6a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.6a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.5a1...0.12.6a1)
+
+**Merged pull requests:**
+
+- fix: a cast returns the entry named by the whole description [\#139](https://github.com/OpenVoiceOS/ovos-color-parser/pull/139) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.5a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.5a1) (2026-11-12)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.4a1...0.12.5a1)
