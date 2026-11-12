@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.8a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.8a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.7a1...0.12.8a1)
+
+**Merged pull requests:**
+
+- fix\(da\): drop 11 language-model answers stored as Danish colour names [\#144](https://github.com/OpenVoiceOS/ovos-color-parser/pull/144) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.12.7a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.7a1) (2026-11-12)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.6a1...0.12.7a1)
