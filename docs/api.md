@@ -15,7 +15,8 @@ Parse a natural-language color description.
   applied to the alpha channel).
 - `cast_to_palette=True` returns a matched candidate instead of the average, so the result is always
   a known, named color. A candidate whose name is the whole description wins (the common palette's
-  entry first). Otherwise the candidate closest to the averaged color wins.
+  entry first, and inside one file the first entry). Otherwise the candidate closest to the
+  averaged color wins.
 - `gamut` chooses how a computed color that leaves the sRGB gamut is resolved:
   `GamutPolicy.CLAMP` (per-channel, default), `GamutPolicy.MAP` (hue-preserving), or
   `GamutPolicy.REJECT`.

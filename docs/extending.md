@@ -79,6 +79,12 @@ print(picked.name)   # 'Brand Blue'
    colors ("carrot", "banana").
 4. Add anchor words for the language to `test/test_languages.py`.
 
+Entry order in `colors.json` is significant. A cast with `cast_to_palette=True` returns the first
+entry whose name is the whole description. When `colors.json` is a translation of
+`res/en-US/colors.json`, run `python scripts/order_locale_colors.py`. The script puts the entries
+in the en-US order and puts the entry for each basic colour term first among the entries that
+share its translated name.
+
 A requested tag resolves to the closest bundled locale: exact case-insensitive tag first, then any
 locale sharing the primary language subtag. See [languages.md](languages.md) for the current
 locale list and per-language vocabulary notes.
