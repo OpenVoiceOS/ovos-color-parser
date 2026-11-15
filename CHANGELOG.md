@@ -1,36 +1,92 @@
 # Changelog
 
-## [0.11.3a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.3a2) (2026-09-01)
+## [0.12.8a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.8a1) (2026-11-12)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.3a1...0.11.3a2)
-
-**Merged pull requests:**
-
-- docs: rewrite README in Simplified Technical English [\#119](https://github.com/OpenVoiceOS/ovos-color-parser/pull/119) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.11.3a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.3a1) (2026-08-26)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.2a1...0.11.3a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.7a1...0.12.8a1)
 
 **Merged pull requests:**
 
-- fix: rename bare lang code locale directories [\#120](https://github.com/OpenVoiceOS/ovos-color-parser/pull/120) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- fix\(da\): drop 11 language-model answers stored as Danish colour names [\#144](https://github.com/OpenVoiceOS/ovos-color-parser/pull/144) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.11.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.2a1) (2026-07-23)
+## [0.12.7a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.7a1) (2026-11-12)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.1a1...0.11.2a1)
-
-**Merged pull requests:**
-
-- fix: published wheel is missing core/match/vocab subpackages [\#116](https://github.com/OpenVoiceOS/ovos-color-parser/pull/116) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.11.1a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.11.1a1) (2026-07-23)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.0...0.11.1a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.6a1...0.12.7a1)
 
 **Merged pull requests:**
 
-- fix: close hue gaps in ISCC-NBS spectral color band lookup [\#115](https://github.com/OpenVoiceOS/ovos-color-parser/pull/115) ([JarbasAl](https://github.com/JarbasAl))
+- fix: order translated colors.json so basic colour words cast to their basic colour [\#142](https://github.com/OpenVoiceOS/ovos-color-parser/pull/142) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.6a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.6a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.5a1...0.12.6a1)
+
+**Merged pull requests:**
+
+- fix: a cast returns the entry named by the whole description [\#139](https://github.com/OpenVoiceOS/ovos-color-parser/pull/139) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.5a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.5a1) (2026-11-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.4a1...0.12.5a1)
+
+**Merged pull requests:**
+
+- fix: keep the fraction of a degree in the hue of as\_hls and as\_hsv [\#138](https://github.com/OpenVoiceOS/ovos-color-parser/pull/138) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.4a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.4a1) (2026-11-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.3a1...0.12.4a1)
+
+**Merged pull requests:**
+
+- fix: accept only ASCII hex digits in is\_hex\_code\_valid [\#136](https://github.com/OpenVoiceOS/ovos-color-parser/pull/136) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.3a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.3a1) (2026-11-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.2a1...0.12.3a1)
+
+**Merged pull requests:**
+
+- fix: read 4 and 8 digit hex codes with an alpha channel [\#134](https://github.com/OpenVoiceOS/ovos-color-parser/pull/134) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.2a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.2a1) (2026-10-28)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a3...0.12.2a1)
+
+**Merged pull requests:**
+
+- fix: let the common palette win a color name collision [\#132](https://github.com/OpenVoiceOS/ovos-color-parser/pull/132) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.1a3](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a3) (2026-09-26)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a2...0.12.1a3)
+
+**Merged pull requests:**
+
+- chore\(ci\): drop the broken Dependabot config [\#129](https://github.com/OpenVoiceOS/ovos-color-parser/pull/129) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.12.1a2](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a2) (2026-09-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.1a1...0.12.1a2)
+
+**Merged pull requests:**
+
+- docs: correct locale count from 23 to 45 [\#123](https://github.com/OpenVoiceOS/ovos-color-parser/pull/123) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.12.1a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.1a1) (2026-09-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.12.0a1...0.12.1a1)
+
+**Merged pull requests:**
+
+- fix: require rapidfuzz; the fuzzy\_match fallback hangs the suite and callers [\#126](https://github.com/OpenVoiceOS/ovos-color-parser/pull/126) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.12.0a1](https://github.com/OpenVoiceOS/ovos-color-parser/tree/0.12.0a1) (2026-09-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-color-parser/compare/0.11.3...0.12.0a1)
+
+**Merged pull requests:**
+
+- feat: extract\_color\_spans returns code-point spans for colour expressions [\#124](https://github.com/OpenVoiceOS/ovos-color-parser/pull/124) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
