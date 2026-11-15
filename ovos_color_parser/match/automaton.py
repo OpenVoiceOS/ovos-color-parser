@@ -31,9 +31,9 @@ class SubstringMatcher:
 
     def add_word(self, key: str, value: str) -> None:
         """Register ``key`` (an already-normalised name) mapping to ``value``
-        (its hex code). A later key silently wins on collision, matching how the
-        vocabularies are layered."""
-        if not key:
+        (its hex code). The first key wins on collision, so the vocabulary added
+        first (the common palette) keeps the name."""
+        if not key or key in self._words:
             return
         self._words[key] = value
         self._max_len = max(self._max_len, len(key))
